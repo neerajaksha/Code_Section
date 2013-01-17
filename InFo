@@ -1,0 +1,8 @@
+•  Advanced Computer Networks -“ IMPLEMENTATION OF AN INTER AND INTRA DOMAIN PATH VECTOR ROUTING PROTOCOL ”																           			                      
+
+An intra-domain and inter-domain routing protocols was developed which used path vector routing concept. 
+Each domain had inter-domain routers and a gateway router. Gateway routers of each domain ran an inter-domain 
+routing process to communicate routes of their respective domains with other gateway routers. 
+Validity of this project was tested by sending messages from any source to any destination.
+This project is coded using C (Socket programming).
+
