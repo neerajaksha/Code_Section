@@ -1,0 +1,3 @@
+A project to develop a synchronous distributed algorithm for collision free movement of multiple robots in a 2D area.
+Suitable collision avoidance and resolution techniques were employed so that free passage of robot is feasible. 
+Visual C# and Silverlight is used to code the project and the simulation is presented using Visual Studio 2012.
