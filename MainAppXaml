@@ -1,0 +1,299 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using System.Threading;
+using System.IO;
+using System.Xml;
+
+namespace DistributedComputingProject
+{
+
+    
+    public partial class MainPage : UserControl
+    {
+
+        // Maintaining the list of all the robots in the plane and their correpnosing visualization
+        List<Ellipse> ellipses = new List<Ellipse>();
+        List<TextBlock> textBlocks = new List<TextBlock>();
+        Graph graph = new Graph();
+
+        public MainPage()
+        {
+            InitializeComponent();
+            //ReadFile();
+            Intialize();
+            //MoveRobots();
+                       
+        }
+
+       
+        public void Intialize()
+        {
+            
+
+            #region Input using File
+            // Problem: Silverlight runs on the browser and browser doest have any access to localhost file system. So may have to hosted using IIS and 
+            // we may have to access the content of the file using get Http call. 
+
+            String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Input2.txt");
+
+            StreamReader streamReader = File.OpenText(path);
+            char[] splitBasedOn = { ' ' };
+            
+            streamReader.ReadLine();
+            String temp = streamReader.ReadLine();
+            String[] tempInput = temp.Split(splitBasedOn);
+            
+            // assigning plane
+            Plane.xPlaneSize = int.Parse (tempInput[0]);
+            Plane.yPlaneSize = int.Parse(tempInput[1]);
+            
+            streamReader.ReadLine();
+            Plane.numberOfPlanes = int.Parse(streamReader.ReadLine());
+            Robot.totalNoOfPlanes = Plane.numberOfPlanes;
+            
+            streamReader.ReadLine();
+            int numberOfRobots = int.Parse(streamReader.ReadLine());
+
+            streamReader.ReadLine();
+            Robot.speedMinPerSec = Converter.SpeedMilePerHourToMeterPerMin( int.Parse(streamReader.ReadLine()));
+
+            streamReader.ReadLine();
+            Robot.messageTransamissionRange = Converter.DistanceMilesToMeter( int.Parse(streamReader.ReadLine()));
+
+            streamReader.ReadLine();
+            Robot.messageTransmissionFailsAfterEverynTransmission = (int) ( 10000 * float.Parse(streamReader.ReadLine()));
+
+            streamReader.ReadLine();
+            Robot.conflictingRange = Converter.DistanceMilesToMeter( int.Parse(streamReader.ReadLine()));
+
+            streamReader.ReadLine();
+            TimeNumber.siestaTime =  Converter.convertHourInMin( float.Parse(streamReader.ReadLine()));
+
+            streamReader.ReadLine();
+            TimeNumber.minInSimulation  = Converter.convertHourInMin(float.Parse(streamReader.ReadLine()));
+
+            streamReader.ReadLine();
+
+
+
+
+            int i = 1;
+
+            for (i = 1; i <= 4; i++)
+            {
+
+                Robot robot = new Robot();
+                robot.xSource = Converter.DistanceMilesToMeter(TimeNumber.getRandomNumber(Plane.xPlaneSize));
+                robot.ySource = Converter.DistanceMilesToMeter(TimeNumber.getRandomNumber(Plane.yPlaneSize));
+
+                robot.xCurr = robot.xSource;
+                robot.yCurr = robot.ySource;
+
+                robot.xDest = Converter.DistanceMilesToMeter(TimeNumber.getRandomNumber(Plane.xPlaneSize));
+                robot.yDest = Converter.DistanceMilesToMeter(TimeNumber.getRandomNumber(Plane.yPlaneSize));
+                robot.uID = i.ToString();
+
+                robot.currentPlane = TimeNumber.getRandomNumber(Plane.numberOfPlanes);
+
+                robot.siestaTime = TimeNumber.siestaTime;
+
+                graph.robots.Add(robot);
+            }
+
+            graph.robots[0].xDest = 200;
+            graph.robots[0].yDest = 150;
+            graph.robots[0].currentPlane = 0;
+            graph.robots[0].xSource = 100;
+            graph.robots[0].ySource = 150;
+            graph.robots[0].xCurr = graph.robots[0].xSource;
+            graph.robots[0].yCurr = graph.robots[0].ySource;
+
+            graph.robots[1].xDest = 150;
+            graph.robots[1].yDest = 100;
+            graph.robots[1].currentPlane = 0;
+            graph.robots[1].xSource = 150;
+            graph.robots[1].ySource = 200;
+            graph.robots[1].xCurr = graph.robots[1].xSource;
+            graph.robots[1].yCurr = graph.robots[1].ySource;
+
+            graph.robots[2].xDest = 100;
+            graph.robots[2].yDest = 150;
+            graph.robots[2].currentPlane = 0;
+            graph.robots[2].xSource = 200;
+            graph.robots[2].ySource = 150;
+            graph.robots[2].xCurr = graph.robots[2].xSource;
+            graph.robots[2].yCurr = graph.robots[2].ySource;
+
+            graph.robots[3].xDest = 150;
+            graph.robots[3].yDest = 200;
+            graph.robots[3].currentPlane = 0;
+            graph.robots[3].xSource = 150;
+            graph.robots[3].ySource = 100;
+            graph.robots[3].xCurr = graph.robots[3].xSource;
+            graph.robots[3].yCurr = graph.robots[3].ySource;
+
+            graph.robots[4].xDest = 200;
+            graph.robots[4].yDest = 150;
+            graph.robots[4].currentPlane = 0;
+            graph.robots[4].xSource = 100;
+            graph.robots[4].ySource = 150;
+            graph.robots[4].xCurr = graph.robots[0].xSource;
+            graph.robots[4].yCurr = graph.robots[0].ySource;
+
+            graph.robots[5].xDest = 165;
+            graph.robots[5].yDest = 165;
+            graph.robots[5].currentPlane = 0;
+            graph.robots[5].xSource = 235;
+            graph.robots[5].ySource = 235;
+            graph.robots[5].xCurr = graph.robots[1].xSource;
+            graph.robots[5].yCurr = graph.robots[1].ySource;
+
+            graph.robots[6].xDest = 165;
+            graph.robots[6].yDest = 235;
+            graph.robots[6].currentPlane = 0;
+            graph.robots[6].xSource = 235;
+            graph.robots[6].ySource = 165;
+            graph.robots[6].xCurr = graph.robots[2].xSource;
+            graph.robots[6].yCurr = graph.robots[2].ySource;
+
+            graph.robots[7].xDest = 150;
+            graph.robots[7].yDest = 200;
+            graph.robots[7].currentPlane = 0;
+            graph.robots[7].xSource = 150;
+            graph.robots[7].ySource = 100;
+            graph.robots[7].xCurr = graph.robots[3].xSource;
+            graph.robots[7].yCurr = graph.robots[3].ySource;
+
+            graph.robots[8].xDest = 200;
+            graph.robots[8].yDest = 150;
+            graph.robots[8].currentPlane = 0;
+            graph.robots[8].xSource = 100;
+            graph.robots[8].ySource = 150;
+            graph.robots[8].xCurr = graph.robots[0].xSource;
+            graph.robots[8].yCurr = graph.robots[0].ySource;
+
+            graph.robots[9].xDest = 150;
+            graph.robots[9].yDest = 100;
+            graph.robots[9].currentPlane = 0;
+            graph.robots[9].xSource = 150;
+            graph.robots[9].ySource = 200;
+            graph.robots[9].xCurr = graph.robots[1].xSource;
+            graph.robots[9].yCurr = graph.robots[1].ySource;
+
+            graph.robots[10].xDest = 100;
+            graph.robots[10].yDest = 150;
+            graph.robots[10].currentPlane = 0;
+            graph.robots[10].xSource = 200;
+            graph.robots[10].ySource = 150;
+            graph.robots[10].xCurr = graph.robots[2].xSource;
+            graph.robots[10].yCurr = graph.robots[2].ySource;
+
+            graph.robots[11].xDest = 150;
+            graph.robots[11].yDest = 200;
+            graph.robots[11].currentPlane = 0;
+            graph.robots[11].xSource = 150;
+            graph.robots[11].ySource = 100;
+            graph.robots[11].xCurr = graph.robots[3].xSource;
+            graph.robots[11].yCurr = graph.robots[3].ySource;
+
+    
+            i = 1;
+            // code to create robot visually on the screen
+            foreach (Robot robot in graph.robots)
+            {
+                Ellipse ellipse = new Ellipse();
+                ellipse.Height = Robot.radius;
+                ellipse.Width = Robot.radius;
+                ellipse.Visibility = Visibility.Visible;
+                robot.uID = i.ToString();
+                i++;
+
+                //(Color) Enum.ToObject(typeof(Color), robot.currentPlane)
+                ellipse.Stroke = new SolidColorBrush(Colors.Yellow);
+                ellipse.StrokeThickness = (Robot.radius / 2);
+
+                Canvas.SetTop(ellipse, robot.ySource);
+                Canvas.SetLeft(ellipse, robot.xSource);
+
+                // now code to write the text inside each ellipse
+                TextBlock textBlock = new TextBlock();
+                textBlock.Height = Robot.radius - 2;
+                textBlock.Width = Robot.radius - 2;
+                textBlock.Visibility = System.Windows.Visibility.Visible;
+                textBlock.Text = robot.currentPlane.ToString();
+                Canvas.SetTop(textBlock, robot.ySource - 2);
+                Canvas.SetLeft(textBlock, robot.xSource + 3);
+
+
+
+
+                this.theCanvas.Children.Add(ellipse);
+                this.theCanvas.Children.Add(textBlock);
+                ellipses.Add(ellipse);
+                textBlocks.Add(textBlock);
+
+            }
+
+            
+
+
+            
+        }
+
+
+
+        private void startButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            //String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "output.txt");
+            //StreamWriter streamWriter = new StreamWriter (path);
+            // Invoking fuction which will capture the snapshot of the current graph and try to resolve the conflicts
+            String temp = null;
+            // loop for simulation
+            //graph.robots = new List<Robot>();
+          
+            //streamWriter.WriteLine("(xSource,ySource,xCurr,yCurr,xDest,yDest,currentPlane,Number Of Planes Shifted, Siesta Time)");
+                          graph.ResolveConflict();
+
+
+                for (int j = 0; j < graph.robots.Count; j++)
+                {
+                    // Start moving the robots to theie destination
+                    graph.robots[j].Move();
+
+
+                    // Adjust the position of the robots on the screen
+                    Canvas.SetLeft(ellipses[j], graph.robots[j].xCurr);
+                    Canvas.SetTop(ellipses[j], graph.robots[j].yCurr);
+                    textBlocks[j].Text = graph.robots[j].currentPlane.ToString();
+                    //textBlocks[j].Text = graph.robots[j].uID;
+                    Canvas.SetLeft(textBlocks[j], graph.robots[j].xCurr + 3);
+                    Canvas.SetTop(textBlocks[j], graph.robots[j].yCurr - 2);
+                    temp = " ( " + graph.robots[j].xSource + ", " + graph.robots[j].ySource + "," + graph.robots[j].xCurr + "," + graph.robots[j].yCurr +
+                        "," + graph.robots[j].xDest + "," + graph.robots[j].yDest + "," + graph.robots[j].currentPlane + "," + graph.robots[j].numberOfPlanesShifted + "," + graph.robots[j].siestaTime +
+                            ")";
+                    //streamWriter.WriteLine(temp);
+
+                    Console.WriteLine(temp);
+
+
+                }
+
+                            
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+    }
+}
