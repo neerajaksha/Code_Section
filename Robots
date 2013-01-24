@@ -1,0 +1,693 @@
+using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using System.Collections.Generic;
+
+
+namespace DistributedComputingProject
+{
+    class Plane
+    {
+        public static int xPlaneSize = 0;
+        public static int yPlaneSize = 0;
+        public static int numberOfPlanes = 0;
+    }
+    class TimeNumber
+    {
+        static Random random = new Random();
+        public static int siestaTime = 0;
+        public static int minInSimulation = 0;
+
+        public static int getRandomNumber(int range)
+        {
+            return random.Next(range);
+        }
+    }
+    class Converter
+    {
+        static bool bApplyScale = false;
+
+        public static  int convertHourInMin(float input)
+        {
+            if (bApplyScale)
+            {
+                return (int)(60 * input);                
+            }
+            return (int)input;
+        }
+        public static int DistanceMilesToMeter(int input)
+        {
+            if (bApplyScale)
+            {
+                return (input * 1609);
+            }
+            return input;
+
+        }
+
+        public static int SpeedMilePerHourToMeterPerMin(int input)
+        {
+            if (bApplyScale)
+            {
+                return ((input * 1609) / 60);
+            }
+            return input;
+        }
+
+        public static int SpeedMilesPerHourToMetersPerSec(int input)
+        {
+            if (bApplyScale)
+            {
+                return ((input * 1609) / 3600);
+            }
+            return input;
+        }
+
+    }
+
+    public enum Status { Leader, NonLeader };
+    public enum IsSafe { Yes, No };
+    public enum ReachedToDestination { Yes, No , Stalled};
+    // instance of this class will be representing a node on the screen
+    public class Robot 
+    {
+        public String uID;
+
+        public int roundNumber;
+        public IsSafe isSafe;
+        public Status myStatus;
+        public ReachedToDestination reachedToDestination;
+        public int xSource;
+        public int ySource;
+
+        public int xDest;
+        public int yDest;
+
+        public int xCurr;
+        public int yCurr;
+
+        public static int radius = 14;
+        public static int totalNoOfPlanes = 0;
+
+        public static int messageTransamissionRange = 0; // R
+        public static int conflictingRange = 0 ; //  H
+        public static int speedMinPerSec = 0;
+        public static int messageTransmissionFailsAfterEverynTransmission;   
+
+        public int currentPlane;
+
+        // robots in the range R
+        public List<Robot> neighbours;
+        public List<Robot> conflictingRobots;
+        public List<Robot> potentialConflictingneighbours; 
+        public List<String> safeList;
+
+        // Co-ordinates to capture the path of the robot
+        public List<int> xPath;
+        public List<int> yPath;
+
+
+        public int numberOfPlanesShifted;
+        public int siestaTime;
+        public double slope;
+        public double theta;
+       
+
+        public Robot()
+        {
+            roundNumber = 0;
+            isSafe = IsSafe.Yes;
+            myStatus = Status.NonLeader;
+            reachedToDestination = ReachedToDestination.No;
+
+            neighbours = new List<Robot>();
+            conflictingRobots = new List<Robot>();
+            safeList = new List<String>();
+            potentialConflictingneighbours = new List<Robot>();
+
+            xPath = new List<int>();
+            yPath = new List<int>();
+        }
+
+        public void Calculate()
+        {
+
+            if (this.xDest == this.xCurr)
+            {
+                if (this.yDest > this.yCurr)
+                {
+                    this.theta = 90 * (Math.PI / 180);
+                }
+                else
+                {
+                    this.theta = 270 * (Math.PI / 180);
+                }
+            }
+            else if (this.yCurr == this.yDest)
+            {
+                if (this.xDest > this.xCurr)
+                {
+                    this.theta = 0;
+                }
+                else
+                {
+
+                    this.theta = 180 * (Math.PI / 180);
+                }
+            }
+            else
+            {
+
+                this.slope = ((float)(this.yDest - this.yCurr) / (float)(this.xDest - this.xCurr));
+
+                this.theta = (Math.Atan(this.slope));
+                if (this.theta < 0)
+                {
+                    this.theta *= -1;
+                }
+                
+            }
+
+        }
+     
+        
+        public int distToDestination()
+        {
+            return (int) Math.Sqrt(Math.Pow((this.xDest - this.xCurr ), 2) + Math.Pow((this.yDest - this.yCurr ), 2));
+        }
+
+        public void Move()
+        {
+            if (this.reachedToDestination == ReachedToDestination.Stalled)
+            {
+                this.reachedToDestination = ReachedToDestination.No;
+                return;
+            }
+            else if (distToDestination() <= Robot.speedMinPerSec)
+            {
+                this.xCurr = this.xDest;
+                this.yCurr = this.yDest;
+                this.reachedToDestination = ReachedToDestination.Yes;
+                siestaTime--;
+
+                if (siestaTime == 0)
+                {
+                    siestaTime = TimeNumber.siestaTime;
+                    this.xSource = this.xDest;
+                    this.ySource = this.yDest;
+                    this.conflictingRobots = new List<Robot>();
+                    this.isSafe = IsSafe.No;
+                    this.myStatus = Status.NonLeader;
+                    this.neighbours = new List<Robot>();
+                    this.numberOfPlanesShifted = 0;
+                    this.potentialConflictingneighbours = new List<Robot>();
+                    this.reachedToDestination = ReachedToDestination.No;
+                    this.roundNumber = 0;
+                    this.safeList = new List<string>();
+                    this.siestaTime = TimeNumber.siestaTime;
+                    this.slope = 0;
+                    this.theta = 0;
+                    this.xCurr = this.xSource;
+                    this.yCurr = this.ySource;
+                    this.xDest = TimeNumber.getRandomNumber(Plane.xPlaneSize);
+                    this.xPath = new List<int>();
+                    this.yDest = TimeNumber.getRandomNumber(Plane.yPlaneSize);
+                    
+
+                }
+            }
+            else
+            {
+                Calculate();
+                if (this.xCurr == this.xDest || this.yCurr == this.yDest)
+                {
+                    this.xCurr = (int)(this.xCurr + (Robot.speedMinPerSec * Math.Cos(this.theta)));
+                    this.yCurr = (int)(this.yCurr + (Robot.speedMinPerSec * Math.Sin(this.theta)));
+                }
+                else
+                {
+                    if (this.xDest > this.xCurr)
+                    {
+                        this.xCurr = (int)(this.xCurr + Math.Ceiling(Robot.speedMinPerSec * Math.Cos(this.theta)));
+                    }
+                    else
+                    {
+                        this.xCurr = (int)(this.xCurr - Math.Ceiling(Robot.speedMinPerSec * Math.Cos(this.theta)));
+                    }
+
+                    if (this.yDest > this.yCurr)
+                    {
+                        this.yCurr = (int)(this.yCurr + Math.Ceiling(Robot.speedMinPerSec * Math.Sin(this.theta)));
+                    }
+                    else
+                    {
+                        this.yCurr = (int)(this.yCurr - Math.Ceiling(Robot.speedMinPerSec * Math.Sin(this.theta)));
+                    }
+                }
+            }
+       
+           
+        }
+
+        public void Move(int distance)
+        {
+
+            if (distToDestination() <= Robot.speedMinPerSec)
+            {
+                this.xCurr = this.xDest;
+                this.yCurr = this.yDest;
+                this.reachedToDestination = ReachedToDestination.Yes;
+            }
+            else
+            {
+                Calculate();
+                if (this.xSource == this.xDest || this.ySource == this.yDest)
+                {
+                    this.xCurr = (int)(this.xCurr + (distance * Math.Cos(this.theta)));
+                    this.yCurr = (int)(this.yCurr + (distance * Math.Sin(this.theta)));
+                }
+                else
+                {
+                    if (this.xDest > this.xSource)
+                    {
+                        this.xCurr = (int)(this.xCurr + Math.Ceiling(distance * Math.Cos(this.theta)));
+                    }
+                    else
+                    {
+                        this.xCurr = (int)(this.xCurr - Math.Ceiling(distance * Math.Cos(this.theta)));
+                    }
+
+                    if (this.yDest > this.ySource)
+                    {
+                        this.yCurr = (int)(this.yCurr + Math.Ceiling(distance * Math.Sin(this.theta)));
+                    }
+                    else
+                    {
+                        this.yCurr = (int)(this.yCurr - Math.Ceiling(distance * Math.Sin(this.theta)));
+                    }
+                }
+            }
+
+
+        }
+
+        public void MoveUp() 
+        {
+            currentPlane++;
+            numberOfPlanesShifted++;
+            // make call xaml to change position on the screen
+        }
+
+        public void MoveDown()
+        {
+            currentPlane--;
+            numberOfPlanesShifted++;
+            // make call xaml to change position on the screen
+        }
+
+        public void FindConflicts() 
+        {
+            
+            //Used to find Conflicting Robots for a particular Robot and populates conflictingRobots list
+            
+            List<Robot> conflictingRobots = new List<Robot>();
+            // neighbours.PopulateNeighbours();
+            int i;
+            float xCurrent;
+            float yCurrent;
+            float xRestCurrent;
+            float yRestCurrent;
+            float xRestDestination;
+            float yRestDestination;
+
+            List<float> xCordinate = new List<float>();
+            List<float> yCordinate = new List<float>();
+            List<float> xRestCordinate = null;
+            List<float> yRestCordinate = null;
+           
+
+            double dist;
+            double distance;
+            float slope;
+            float RestSlope;
+            
+
+            xCurrent = this.xCurr;
+            yCurrent = this.yCurr;
+            
+            //initializing the conflicting robots
+            this.conflictingRobots = new List<Robot>();
+
+            foreach (Robot restRobots in neighbours)
+            {
+
+
+                xRestCurrent = restRobots.xCurr;// Compute_pathX(restRobots);
+                yRestCurrent = restRobots.yCurr; // Compute_pathY(restRobots);
+
+                //Finds distance between Current Robot and every neighboring Robot
+
+                dist = Math.Sqrt(Math.Pow((xRestCurrent - xCurrent), 2) + Math.Pow((yRestCurrent - yCurrent), 2));
+
+                //Populates conficting Robots in a list if distance between them is less than conflicting range
+                if (this.currentPlane == restRobots.currentPlane)
+                {
+                    if (dist <= Robot.conflictingRange && dist != 0)
+                    {
+                        this.conflictingRobots.Add(restRobots);
+                    }
+                } 
+            }
+
+
+            // Have calculated the whole path from source to destination for each robot
+            // values are populated in xPath and yPath list for each instance of Robot class
+            // calculate potential conflicts only if their are no current conflicts 
+            this.potentialConflictingneighbours = new List<Robot>();
+            if (this.conflictingRobots.Count == 0)
+            {
+                foreach (Robot neighbour in this.neighbours)
+                {
+                    if (this.currentPlane != neighbour.currentPlane)
+                    {
+                        continue;
+                    }
+
+                    int xCurrForCurrentInstance = this.xCurr;
+                    int yCurrForCurrentInstance = this.yCurr;
+
+                    int xCurrForNeighbourInstance = neighbour.xCurr;
+                    int yCurrForNeighbourInstance = neighbour.yCurr;
+
+                    this.Move(Robot.conflictingRange);
+                    neighbour.Move(Robot.conflictingRange);
+
+                    if (Robot.conflictingRange <= (int)Math.Sqrt(Math.Pow((this.xDest - neighbour.xCurr), 2) + Math.Pow((this.yDest - neighbour.yCurr), 2)))
+                    {
+                        this.potentialConflictingneighbours.Add(neighbour);
+                    }
+
+
+                    neighbour.yCurr = yCurrForNeighbourInstance;
+                    neighbour.xCurr = xCurrForNeighbourInstance;
+
+                    this.xCurr = xCurrForCurrentInstance;
+                    this.yCurr = yCurrForCurrentInstance;
+
+                   
+                }
+            }
+
+
+        }
+
+
+        public void FindMyNeighboursInCurrentPlane(Graph graph)
+        {
+            this.neighbours = new List<Robot>();
+
+            foreach (Robot robot in graph.robots)
+            {
+                if (this.currentPlane == robot.currentPlane)
+                {
+                    double temp = Math.Sqrt(Math.Pow((this.xCurr - robot.xCurr), 2) + Math.Pow((this.yCurr - robot.yCurr), 2));
+                    if (Robot.messageTransamissionRange >= temp  && temp != 0 )
+                    {
+                        this.neighbours.Add(robot);
+                    }
+                }
+            }
+        }
+
+        public void ResolveConflict(Graph graph)
+        {
+            int initialPlaneNo = this.currentPlane;
+            //int currentPlaneNo = this.currentPlane;
+
+            int UpperPlane = this.currentPlane + 1;
+            int LowerPlane = this.currentPlane - 1;
+
+            int PlaneWithMinimumConflicts = UpperPlane;
+                
+
+            int MinConflictsSeen = this.conflictingRobots.Count;
+          
+            bool flagUporDown = true;
+            
+            if (initialPlaneNo < Robot.totalNoOfPlanes)
+            {
+                flagUporDown = true;
+            }
+            else
+            {
+                flagUporDown = false;
+            }
+
+            
+            while (true)
+            {
+
+                if (LowerPlane <= 0 && UpperPlane >= Robot.totalNoOfPlanes)
+                {
+                    break;
+                }
+                if (flagUporDown)
+                {
+                    this.currentPlane = UpperPlane;
+                    this.FindMyNeighboursInCurrentPlane(graph);
+                    this.FindConflicts();
+                    if (this.conflictingRobots.Count == 0)
+                    {
+                        PlaneWithMinimumConflicts = UpperPlane;
+                        this.numberOfPlanesShifted = this.numberOfPlanesShifted + ( UpperPlane - initialPlaneNo);
+                        break;
+                    }
+                    else if (MinConflictsSeen < this.conflictingRobots.Count)
+                    {
+                        PlaneWithMinimumConflicts = UpperPlane;
+
+                        MinConflictsSeen = this.conflictingRobots.Count;
+                        
+                    }
+                    if (LowerPlane > 0)
+                    {
+                        flagUporDown = false;
+                    }
+                    UpperPlane++;
+
+                }
+                else
+                {
+                    this.currentPlane = LowerPlane;
+                    this.FindConflicts();
+                    if (this.conflictingRobots.Count == 0)
+                    {
+                        PlaneWithMinimumConflicts = LowerPlane;
+                        this.numberOfPlanesShifted = this.numberOfPlanesShifted + (initialPlaneNo - LowerPlane);
+                        break;
+                    }
+                    else if (MinConflictsSeen < this.conflictingRobots.Count)
+                    {
+                        PlaneWithMinimumConflicts = LowerPlane;
+                        MinConflictsSeen = this.conflictingRobots.Count;
+
+                    }
+                    // operations
+                    if (UpperPlane < Robot.totalNoOfPlanes)
+                    {
+                        flagUporDown = true;
+                    }
+                    LowerPlane--;
+                }
+
+
+                // call method to detect whether robot is going to collite with any other robot or not
+            }
+
+
+            this.FindMyNeighboursInCurrentPlane(graph);
+            //  this is the code to check if any next movement of the robot will collide with the robot in its regihbouring list
+            // storing the xCurr and yCurr before we simulate the move of the robot
+            int xCurr = this.xCurr;
+            int yCurr = this.yCurr;
+            ReachedToDestination tempReached = this.reachedToDestination;
+            
+            this.Move();
+
+            foreach (Robot robot in this.neighbours)
+            {
+                
+                int xTemp = robot.xCurr;
+                int yTemp = robot.yCurr;
+                ReachedToDestination reachedToDestination = robot.reachedToDestination;
+                robot.Move();
+                if (this.xCurr == robot.xCurr && this.yCurr == robot.yCurr  || this.xCurr == xTemp && this.yCurr == yTemp)
+                {
+                    this.reachedToDestination = ReachedToDestination.Stalled;
+                    robot.reachedToDestination = ReachedToDestination.Stalled;                 
+                   
+                }
+                robot.xCurr = xTemp;
+                robot.yCurr = yTemp;
+
+                if (reachedToDestination == ReachedToDestination.Stalled)
+                {
+                    robot.reachedToDestination = reachedToDestination;
+                }
+
+            }
+
+            this.xCurr = xCurr;
+            this.yCurr = yCurr;
+            if (tempReached == ReachedToDestination.Stalled)
+            {
+                this.reachedToDestination = tempReached;
+            }
+                       
+            
+        }
+
+
+        
+    }
+
+    public class Graph
+    {
+        public List<Robot> robots;
+
+
+        public Graph()
+        {
+            robots = new List<Robot>();
+        }
+
+       
+        //function used to Find neighbours for a particular Robot and populates neighbours list
+        public void PopulateNeighbours()
+        {
+            
+
+            double distance_between;
+            
+
+            foreach (Robot currrobot in robots)
+            {
+                int x1 = currrobot.xCurr;
+                int y1 = currrobot.yCurr;
+                int z1 = currrobot.currentPlane;
+                currrobot.neighbours = new List<Robot>();                  
+
+                foreach (Robot restRobots in robots)
+                {
+                    int x2 = restRobots.xCurr;
+                    int y2 = restRobots.yCurr;
+                    int z2 = restRobots.currentPlane;
+
+                    // probably some some constant factor may have to be introduced for the z axis because change of plane could be more than
+                    // one pixel
+                    distance_between = Math.Sqrt(Math.Pow((x2 - x1), 2) + Math.Pow((y2 - y1), 2) + Math.Pow((z2 - z1), 2));
+
+                    if (distance_between <= Robot.messageTransamissionRange && distance_between != 0)
+                    {
+                        currrobot.neighbours.Add(restRobots);
+                    }
+                }
+            }
+        }
+
+        public int SortBasedOnConflicts()
+        {
+            int CurrMaxConflicts = -1000;
+            int index = -1;
+            int minimumPlaneShifted = 1000;
+            
+            for (int iIndex = 0; iIndex < robots.Count; iIndex++)
+            {
+                if (robots[iIndex].conflictingRobots.Count > CurrMaxConflicts)
+                {
+                    index = iIndex;
+                    CurrMaxConflicts = robots[iIndex].conflictingRobots.Count;
+                }
+                
+            }
+
+            // this is to make sure that only one robot doesnt move all the time
+            // Here from the list of the all robots of maximumNumberOfConflicts, we will select the one who has moved least number of times
+            for (int iIndex = 0; iIndex < robots.Count; iIndex++)
+            {
+                if (robots[iIndex].conflictingRobots.Count == CurrMaxConflicts)
+                {
+                    if (minimumPlaneShifted > robots[iIndex].numberOfPlanesShifted)
+                    {
+                        index = iIndex;
+                        minimumPlaneShifted = robots[iIndex].conflictingRobots.Count;
+
+                    }
+                   
+                }
+
+            }
+
+
+            return index;                    
+
+        }
+     
+        // This function remove robot which is passed as parameter from conflicting list of other nodes
+        public void RemoveFromConflictingList(Robot robot)
+        {
+            foreach (Robot conflictingRobot in robots)
+            {
+                conflictingRobot.conflictingRobots.Remove(robot);
+            }
+        }
+
+        public void ResolveConflict() {
+            int NumofConflicts = 0;
+            int iIndex = -1;
+            int numberOfRobotsInConflict = 0;
+
+            // invoking populate to capture the state of the graph at the given point of time
+            PopulateNeighbours();
+
+            foreach (Robot CountRobot in robots)
+            {
+                CountRobot.FindConflicts();
+                NumofConflicts += CountRobot.conflictingRobots.Count;
+                if (CountRobot.conflictingRobots.Count > 0)
+                {
+                    numberOfRobotsInConflict++;
+                }
+            }
+
+            if (NumofConflicts != 0 )
+            {
+                while (NumofConflicts > 0 && numberOfRobotsInConflict > 0)
+                {
+                    iIndex = this.SortBasedOnConflicts();
+                    int CurrNoOfConflicts = robots[iIndex].conflictingRobots.Count;
+                    // resolve conflicts at each node
+                    robots[iIndex].ResolveConflict(this);
+
+                    numberOfRobotsInConflict--;
+                    NumofConflicts = NumofConflicts - (2 * CurrNoOfConflicts);
+
+                    // this code remove the robot which we just moved from there conflicting lists
+                    RemoveFromConflictingList(robots[iIndex]);
+                    
+                }
+
+                
+            }
+            
+        
+        }
+    }
+}
