@@ -1,0 +1,36 @@
+ADVANCED COMPUTER NETWORKS
+PROJECT SUBMISSION 
+
+TEAM:
+NEERAJAKSHA GANGARAJU
+MUHAMMAD SHOIAB
+ABHISHEK RAORANE
+
+
+READ ME FILE
+
+There are 15 programs in this submission file.
+G1, G2, G3 are Border Gateway Routers
+R1 to R12 are intra-domain routers
+
+Their name, compiling command and running command are as follows:-
+Assuming the programs are running in Netxx machines following EXECUTION
+command is specified and it will vary as Netxx machine number varies.
+
+Program        Netxx(Machine no)    	COMPILING COMMAND         EXECUTION
+
+1) r(1).c               net01     		    gcc r(1).c -o r1    	                    ./r1 
+2) r(2).c               net02     		    gcc r(2).c -o r2    	                    ./r2 
+3) r(3).c               net03     		    gcc r(3).c -o r3    	                    ./r3 
+4) r(4).c               net04     		    gcc r(4).c -o r4    	                    ./r4 
+5) r(5).c               net05     		    gcc r(5).c -o r5    	                    ./r5 
+62) r(6).c              net06     		    gcc r(6).c -o r6    	                    ./r6 
+72) r(7).c              net07     		    gcc r(7).c -o r7   	                      ./r7 
+82) r(8).c              net08     		    gcc r(8).c -o r8    	                    ./r8 
+9) r(9).c               net09     		    gcc r(9).c -o r9    	                    ./r9 
+10) r(10).c             net10     		    gcc r(10).c -o r10    	                  ./r10 
+11) r(11).c             net11     		    gcc r(11).c -o r11  	                    ./r11 
+12) r(12).c             net12     		    gcc r(12).c -o r12    	                  ./r12 
+13) G1.c                net22     		    gcc G22.c -o g22    	                    ./g22
+14) G2.c                net33     		    gcc G33.c -o g33    	                    ./g33
+15) G3.c                net44     		    gcc G44.c -o g44    	                    ./g44 
