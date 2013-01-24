@@ -1,0 +1,53 @@
+__________README FILE_________
+
+DISTRIBUTED COMPUTING PROJECT
+
+TITLE: "Synchronous Distributed Algorithm for safe passage of Robots in 2D plane"
+
+TEAM:
+
+Sumitkumar Kukkar
+Neerajaksha Gangaraju
+Amer Khan Mohammad
+Zeel Bipin Shah
+
+These are the files attached
+1) GROUP REPORT 
+2) SIMULATION :- A visual C# and Silverlight4 project which contains Source code. 
+                Need to run in Visual Studio 2010 or higher.
+
+3)INPUT files :- "input2.txt", "input3.txt", "input4.txt"
+	           NOTE: Please copy and paste above mentioned files in "MyDocuments" folder in your system while running simulation.
+                            These are the Input configuration files which when run generates suitable test case.
+                            Below mentioned TESR CASE# description is mentioned in GROUP REPORT.
+	          
+		 For TEST CASE1------------->Please include "input2.txt" file.
+		 For TEST CASE2------------->Please include "input3.txt" file.
+		 For TEST CASE3------------->Please include "input4.txt" file.
+
+4)OUTPUT file :- "Output.txt" -->Has output for given input file "input4.txt" which is Test case 3.
+ 	           NOTE: After running simulation you can find an "Output.txt" generated in your "MyDocuments" folder.
+                            This is the Output file which is generated after simulation is complete.
+                            
+
+
+STEPS TO RUN SIMULATION
+
+Step 1) After opening "SIMULATION", go to "Ver10" and then to "Distributed ComputingProject".
+
+Step 2) Now open "Distributed ComputingProject" which is a Microsoft Visual studio solution file.
+
+	NOTE: In oder to enable file reading from given input configuration file, following changes have to be made in Visual Studio.
+
+	a) In Solution Explorer window, Right Click on "DistributedComputingProjectFinal" file and select "properties".
+	b) Now on opened "DistributedComputingProjectFinal" file, select Silverlight option.
+	c) Check on "Enable running application out of the browser" option
+	d) Click on "Out-of-Browser-settings" 
+	e) Enable "Show install menu"and "Require elevated trust when running outside the browser" options and select "Window Style"as Default.
+	 f) Press ok.
+
+Step 3) To run simulation press "START" button or "F5" button
+
+Step 4) A screen appears on any browser. Press "simulate" and wait till "Finally we are Done" message appears.
+
+Step 5) Now we can see results in "output.txt" file which is in "MyDocuments" folder.
