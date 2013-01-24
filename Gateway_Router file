@@ -1,0 +1,1110 @@
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include<netinet/in.h>
+#include <netinet/in.h>
+#include<fcntl.h>
+#include <arpa/inet.h>
+#include <netdb.h> 
+#include<cstdlib>
+#include <cstdio>
+#include <iostream>
+#include <fstream>
+#include<sstream>
+#include<string.h>
+#include <cstring>
+#include <fstream>
+#include<sstream>
+
+#define SIZE 1024
+#define ID 13
+#define MaxNeighborPlusOne 5
+using namespace std;
+
+
+int main(int argc, char *argv[]) {
+  
+  struct timeval ts; 
+	ts.tv_sec=0;
+	ts.tv_usec=0;
+	time_t timerList[MaxNeighborPlusOne];
+	ifstream inputFile;
+	fd_set rset;	
+	int sockfd[5]={9999}; 
+	int n, slen, i=0, k, MaxNeighbors;
+	char Buffer[SIZE];
+	char KeepAlive[]="keepalivek";
+	int m, lengthpath=0;
+	struct sockaddr_in servaddr[5];
+	struct hostent *h_server[5];
+	double totalint, nonzeroint;
+	int p=0,q=0,p1[10];
+	int counter_alarm[MaxNeighborPlusOne]={0};
+	double diff=10.0; 
+	int start[MaxNeighborPlusOne]={0};
+	string a[100],r[100],por[100];
+	string numfile;
+	string router,port;
+	slen=sizeof(servaddr[0]);
+
+	inputFile.open("Config_file.txt");
+	if (!inputFile.fail())
+	{
+		cout << "Input file is open.\n";
+		while (inputFile >> numfile)
+		{
+			a[i]=numfile;
+			i++;			
+		}
+		char *b=new char[a[ID-1].size()+1];
+		b[a[ID-1].size()]=0;
+		memcpy(b,a[ID-1].c_str(),a[ID-1].size());
+		int j=0;
+		while(b[j]!=')')
+		{
+			j++;
+		}
+		int l=j+1;
+		while(l<=(a[ID-1].size()))
+		{
+			if (b[l]=='(')
+			{
+				p++;              
+				for(int i = l+1; i<=l+5; i++)
+				{
+					router += b[i];
+				}
+				l=l+7;
+				r[p]=router;
+				router="";
+				while(b[l]!=',')
+				{
+					port += b[l];
+					l++;
+				}
+				por[p]=port;
+				port="";
+			}
+			l++;
+		}
+		inputFile.close();
+	}
+	else
+	{
+		cout << "\nError, unable to open"<<endl;
+	}
+	//////////////////indices
+	int count1=1;
+	char index1[100];
+	char *index = (char*)a[ID-1].c_str();
+	for(int po=20;po<a[ID-1].size();po++)
+	{
+        if( index[po]=='i')
+        {
+            
+           index1[count1]='i';
+           count1++;
+            }
+			if(index[po]=='g')
+			{
+				
+				 index1[count1]='g';
+count1++;
+			}
+ 
+        
+	}
+	///////////////////////////Testing-File//////////////////////		
+	for(i=1;i<=p;i++)
+	{
+		 cout<<r[i]<<endl;
+		 stringstream(por[q+1]) >> p1[i];
+		 cout<<p1[i]<<endl;
+		 cout<<"index="<<index1[i]<<endl;
+		 q=q+1;                
+	}
+	 int ki=0,ti=0;
+ int external_port[100];  
+ for( int cd=1;cd<=3;cd++)
+{
+   if(index1[cd]=='g')
+   {
+	ki++; 
+   external_port[ki]=p1[cd];
+  
+ 
+   }
+if(index1[cd]=='i')
+   {
+	 ti++;
+   }
+ }
+
+	//////////////////////File Operations Finished//////////////////////////////////
+	MaxNeighbors=p+1;
+
+	for(k=1; k<MaxNeighbors; k++)
+	{
+		const char *rt = r[k].c_str();
+		if ((h_server[k] = gethostbyname(rt)) == NULL) 
+		{ 
+			cerr << "Error: Address acquire problem" << endl;
+			exit(1);
+		}
+		
+		if ( (sockfd[k] = socket(AF_INET,SOCK_DGRAM, 0)) < 0) 
+		{
+			cerr<<"Error: Socket Opening Issue"<<argv[0]<<endl;
+			exit(1);
+		}
+
+		bzero(&servaddr[k], sizeof(servaddr[k])); /*Washing Address space*/
+		servaddr[k].sin_family = AF_INET;
+		servaddr[k].sin_addr.s_addr = htonl(INADDR_ANY); /*Local free IP addresses*/
+		servaddr[k].sin_port = htons(p1[k]); /*Local free port numbers*/
+
+		if (bind(sockfd[k], (struct sockaddr *)&servaddr[k], sizeof(servaddr[k])) < 0) 
+		{
+			cerr<<"Error: Bind Problem"<<argv[0]<<endl;
+			exit(1);
+		}
+		
+		servaddr[k].sin_addr = *((struct in_addr *) h_server[k]->h_addr);
+	}
+	
+	string dest[100],path[100], destx[100],pathx[100],str_dest,str_destx,str,str_cmp="net22",str_own=",net22",str1,path1,path1x,ry,ryx,rye,wen,rye1,wen1;
+	int j=0,count=0,temp=1,loop=0,loopx=0,hop=1,hopx=1,kp,length=0,recent=0,recentx=0,hop_count[50],ui,uix,sz=0,szx=0,ri=0,rix=0,hop_countx[50],exPort=0,ex=0,inPort=0;
+	char poli[100][100],cmp[10]={NULL},cmpx[10]={NULL},Buffer1[100],polix[100][100];
+	int alarm[MaxNeighbors];
+	for(i=1;i<MaxNeighbors;i++)
+	{
+			alarm[i]=0;
+	}
+
+
+	for(i=1; i<MaxNeighbors; i++)
+	{
+             if(index1[i]=='g')
+             { 
+			    exPort++;
+               	pathx[exPort-1]=r[i]; pathx[exPort-1]+=",net22"; 
+		        destx[exPort-1]=r[i];
+		//path3[i-1]=path[i-1];
+		hop_countx[exPort-1]=1;
+        ex++; 
+
+		
+    }
+            else
+            {	
+		
+		path[inPort]=r[i]; path[inPort]+=",net22"; 
+		dest[inPort]=r[i];
+		//path3[i-1]=path[i-1];
+		hop_count[inPort]=1;
+              inPort++;  
+            }
+	}
+	count= inPort-1; 
+	exPort--;
+	for(i=1; i<MaxNeighbors; i++)
+	{
+		if(p1[i]==external_port[1] || p1[i]==external_port[2])
+		{
+		for(int pi=0; pi<=exPort; pi++)
+		{
+		  
+			const char *path2 = (pathx[pi]+"r").c_str();
+			if (sendto(sockfd[i], path2, strlen(path2), 0, (struct sockaddr *) &servaddr[i], sizeof(servaddr[i])) < 0) 
+			{
+				cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+				exit(1);
+			}
+		  }
+		for(int pi=0; pi<=count; pi++)
+			{
+		  
+			const char *path2 = (path[pi]+"r").c_str();
+			if (sendto(sockfd[i], path2, strlen(path2), 0, (struct sockaddr *) &servaddr[i], sizeof(servaddr[i])) < 0) 
+			{
+				cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+				exit(1);
+			}
+		  }
+}
+			else
+			{
+			for(int pi=0; pi<=count; pi++)
+			{
+		  
+			const char *path2 = (path[pi]+"r").c_str();
+			if (sendto(sockfd[i], path2, strlen(path2), 0, (struct sockaddr *) &servaddr[i], sizeof(servaddr[i])) < 0) 
+			{
+				cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+				exit(1);
+			}
+		  }
+	
+			
+			}
+		
+	}
+	for(;;)
+	{
+		FD_ZERO(&rset);
+		FD_SET(0,&rset);
+		
+		for(i=1; i<MaxNeighbors; i++)
+			FD_SET(sockfd[i],&rset);
+		
+		int max=sockfd[1];
+		for(i=2; i<MaxNeighbors; i++)
+		{
+			if(max<sockfd[i])
+				max=sockfd[i];
+		}
+		select(max+1,&rset,NULL,NULL,&ts);
+		
+		
+		for(i=1; i<MaxNeighbors; i++)
+		{
+			if(FD_ISSET(sockfd[i],&rset))
+			{
+				memset(Buffer, 0, SIZE);
+				if (recvfrom(sockfd[i], Buffer, SIZE, 0, (struct sockaddr *) &servaddr[i], (socklen_t*) &slen) < 0) 
+				{
+					cout<<"Error: Problem in recvfrom"<<argv[0]<<endl;
+					exit(1);
+				}
+				time(&timerList[i]);
+				start[i]=1;
+				counter_alarm[i]=0;
+				int sk=0;
+				while(Buffer[sk])
+					{sk++;}
+				str="";
+				for(int i1 = 0; i1<sk-1; i1++)
+					{  str += Buffer[i1];  }	
+
+				int kl=strlen(Buffer);
+				string we;
+				
+				for(int re=kl-6;re<kl-1;re++)
+				{
+					we+=Buffer[re];
+				}
+				
+				if((external_port[1]==p1[i]) || (external_port[2]==p1[i]))
+				{
+					for(int q1=ki; q1<=exPort && alarm[i]!=1; q1++)////////////
+					{	
+						const char *rxx = pathx[q1].c_str();
+					int lengthpathx=strlen(rxx);
+					 ryx="";
+					for (int mx=lengthpathx-11; mx<lengthpathx-6;mx++)
+					{
+						ryx+=rxx[mx];
+					}
+					if(ryx==we)
+					{
+						alarm[i]=1; 
+					}
+				}
+				char lox[100];
+				if(alarm[i]!=1)
+				{	
+					for(int m=0; m<=exPort; m++)
+					{	
+						const char *path4 = (pathx[m]+"r").c_str();
+				
+						if (sendto(sockfd[i], path4, strlen(path4), 0, (struct sockaddr *) &servaddr[i], sizeof(servaddr[i])) < 0) 
+						{
+							cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+							exit(1);
+						}
+					}
+					for(int m=0; m<=count; m++)
+					{	
+						const char *path4 = (path[m]+"r").c_str();
+				
+						if (sendto(sockfd[i], path4, strlen(path4), 0, (struct sockaddr *) &servaddr[i], sizeof(servaddr[i])) < 0) 
+						{
+							cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+							exit(1);
+						}
+					}
+				}
+			}
+			else
+			{
+				for(int q=ti; q<=count && alarm[i]!=1; q++)
+				{	
+					const char *rx = path[q].c_str();
+					lengthpath=strlen(rx);
+					 ry="";
+					for (m=lengthpath-11; m<lengthpath-6;m++)
+					{
+						ry+=rx[m];
+					}
+					if(ry==we)
+					{
+						alarm[i]=1; 
+					}
+				}
+						char lo[100];
+				if(alarm[i]!=1)
+				{	
+					for(int m=0; m<=count; m++)
+					{	
+						const char *path4 = (path[m]+"r").c_str();
+				
+						if (sendto(sockfd[i], path4, strlen(path4), 0, (struct sockaddr *) &servaddr[i], sizeof(servaddr[i])) < 0) 
+						{
+							cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+							exit(1);
+						}
+					}
+				}
+}
+				
+				const char *Buffer1 = str.c_str();
+				if(Buffer[sk-1]=='k')
+				{
+					strcat(Buffer, "a");
+					if (sendto(sockfd[i], Buffer, sizeof(Buffer), 0, (struct sockaddr *) &servaddr[i], sizeof(servaddr[i])) < 0) 
+					{
+						cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+						exit(1);
+					}	
+				}
+	
+				else if(Buffer[sk-1]=='r')
+				{                         
+                     	   if((external_port[1]==p1[i]) || (external_port[2]==p1[i])) 		
+				   {
+					cout<<"Routing update ";
+					for(int i1=0; i1<5; i1++)	
+					{
+					str_dest+=Buffer[i1];
+					}
+								
+						
+						for(int h=0;h<strlen(Buffer);h++)
+						{
+							if(Buffer[h]==',')
+							{
+								hopx++;
+							}
+						}
+						j=0;
+						while( (pathx[j].compare(str)!= 0)&&(j<=exPort) )
+						{
+							j++;
+						}
+						
+						if(j>exPort)
+						{
+							//Loop detection
+							while(Buffer1[rix])
+							{szx++;rix++;}
+							length=0;
+							while(length<szx)
+							{
+								uix=0;
+								for(int pk =0; pk<5; pk++)
+								{  
+									cmpx[uix]=Buffer1[length];
+									uix++;length++;
+								}
+								if((strcmp(cmpx,"net22"))==0)
+								{loopx=1;} 
+								length++;
+							}
+
+							if(loopx!=1)
+							{
+								path1x=str;
+								path1x+=",net22";
+								int flag=0;							
+								for(int cmp=0;cmp<=exPort; cmp++)
+									{  
+
+									if( (path1x==pathx[cmp]) && (flag!=1))
+									{
+										flag=1;
+									}
+								}
+								if(flag==0)
+								{
+									exPort++;
+									destx[exPort]=str_dest;
+									strcpy(polix[exPort],Buffer1);
+									strcat(polix[exPort],",net22r");
+									pathx[exPort]=str;
+									pathx[exPort]+=str_own;
+									hop_countx[exPort]=hopx;								
+									recentx=1; //exPort++;
+									for(int kc=1; kc<MaxNeighbors; kc++)
+									{
+										if(kc!=i && ((external_port[1]==p1[kc]) || (external_port[2]==p1[kc])))
+										{	
+											if (sendto(sockfd[kc], polix[exPort], sizeof(polix[exPort]), 0, (struct sockaddr *) &servaddr[kc], sizeof(servaddr[kc])) < 0) 
+											{
+												cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+												exit(1);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+
+
+
+							//	const char *Buffer1 = str.c_str();
+					cout<<"Routing update ";
+					for(int i1=0; i1<5; i1++)	
+					{
+					str_dest+=Buffer[i1];
+					}
+								
+						
+						for(int h=0;h<strlen(Buffer);h++)
+						{
+							if(Buffer[h]==',')
+							{
+								hop++;
+							}
+						}
+						j=0;
+						while( (path[j].compare(str)!= 0)&&(j<=count) )
+						{
+							j++;
+						}
+						
+						if(j>count)
+						{
+							//Loop detection
+							while(Buffer1[ri])
+							{sz++;ri++;}
+							length=0;
+							while(length<sz)
+							{
+								ui=0;
+								for(int pk =0; pk<5; pk++)
+								{  
+									cmp[ui]=Buffer1[length];
+									ui++;length++;
+								}
+								if((strcmp(cmp,"net22"))==0)
+								{loop=1;} 
+								length++;
+							}
+
+							
+							if(loop!=1)
+							{
+								path1=str;
+								path1+=",net22";
+								int flag=0;							
+								for(int cmp=0;cmp<=count; cmp++)
+									{  
+
+									if( (path1==path[cmp]) && (flag!=1))
+									{
+										flag=1;
+									}
+								}
+								if(flag==0)
+								{
+									count++;
+									dest[count]=str_dest;
+									strcpy(poli[count],Buffer1);
+									strcat(poli[count],",net22r");
+									path[count]=str;
+									path[count]+=str_own;
+									hop_count[count]=hop;
+									recent=1;
+									for(k=1; k<MaxNeighbors; k++)
+									{
+										if((k!=i) && ((external_port[1]!=p1[i]) || (external_port[2]!=p1[i])))
+										{	
+											if (sendto(sockfd[k], poli[count], sizeof(poli[count]), 0, (struct sockaddr *) &servaddr[k], sizeof(servaddr[k])) < 0) 
+											{
+												cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+												exit(1);
+											}
+										}
+									}
+								}
+							}
+							
+						}
+							else
+								{recent=0;}
+
+						}
+					
+					cout<<"____TABLE_____"<<endl;
+					for(int e=0;e<=count;e++)
+						{cout<<"Dest "<<dest[e]<<" Path "<<path[e]<<" Hops:"<<hop_count[e]<<endl;}
+					cout<<"____XTABLE_____"<<endl;
+					for(int e=0;e<=exPort;e++)
+						{cout<<"Dest "<<destx[e]<<" Path "<<pathx[e]<<" Hops:"<<hop_countx[e]<<endl;}	
+
+					str="";
+					str_dest="";
+					str_destx="";
+					hop=1;
+					hopx=1;
+					loop=0;
+					loopx=0;
+					cout<<endl;
+					if(recent==1)
+					{	
+						//recent=0;
+						cout <<endl << endl;
+					}
+				}
+				else if(Buffer[sk-1]=='w')
+				{
+					if((external_port[1]==p1[i]) || (external_port[2]==p1[i]))
+					{
+					//////////////////////////////
+					//if port == external port()
+					int markw=0,len_of_pathw=0,lenw=0,indxw=0,trackerw[100]={NULL},opw,szw;
+								
+					string expired_nodew=str; 
+					char dummyw[100];
+                 markw=0;  
+				for(opw=0; opw<=exPort; opw++)//export
+				{
+					if (destx[opw]==expired_nodew)//x 
+					{      //Found node which has expired timer
+						cout<<"Found expired node above"<<endl;
+						markw=1;
+					}	
+				}
+				cout<<"markw"<<markw<<endl;
+			         const char *dest_rmvw = expired_nodew.c_str();
+                     indxw=0;
+				if(markw==1)
+				{
+					for(opw=0; opw<=exPort; opw++)//export
+					{    
+                        len_of_pathw=(pathx[opw].size()); //x
+						const char *path_comparew = (pathx[opw]).c_str();//x
+						lenw=0;
+						while(lenw<=len_of_pathw)
+						{       szw=0;		       	
+								for(int varw=lenw; varw<=(lenw+4); varw++)
+								{   
+                                                 dummyw[szw]=path_comparew[varw]; 
+													szw++;
+						   	
+								}
+						dummyw[szw]=NULL;
+								if(strcmp(dummyw,dest_rmvw)==0)
+								{ //expired node found in path
+								
+								//delete entry
+								pathx[opw]="";//x
+								destx[opw]="";//x
+								trackerw[indxw]=opw; 
+								indxw++;
+								//cout<<"indx"<<indx<<endl<<tracker[indx]<<endl;
+								lenw=len_of_pathw+1;
+								}
+								else
+								{
+                                 lenw=lenw+6;
+								} 
+						}//while
+					}//for
+			      indxw--;
+					while(indxw>=0)
+					{ 
+						while(pathx[exPort]=="")//export x
+						{
+							exPort=exPort-1;//export
+							if(exPort<0)
+								{break;}
+							//condition
+						}
+						if(exPort<0)
+								{break;}
+						while(trackerw[indxw]>exPort)//export 
+						{
+						trackerw[indxw]=NULL;
+						indxw--;                       
+						
+						}
+						//condition
+						if(indxw>=0)
+						{
+						pathx[trackerw[indxw]]=pathx[exPort];//export x
+						destx[trackerw[indxw]]=destx[exPort];//export x
+						hop_countx[trackerw[indxw]]=hop_countx[exPort];//export x
+						pathx[exPort]="";			 //export x 
+						destx[exPort]="";//export x
+						hop_countx[exPort]=NULL;//export x
+						trackerw[indxw]=NULL;
+						indxw--;
+						exPort=exPort-1;
+             		    }
+					 }
+					for(k=1; k<MaxNeighbors; k++)
+					{
+						if((k!=i)&& ((external_port[1]==p1[k]) || (external_port[2]==p1[k])))//conditions port
+						{	
+							if (sendto(sockfd[k], Buffer, sizeof(Buffer), 0, (struct sockaddr *) &servaddr[k], sizeof(servaddr[k])) < 0) 
+							{
+								cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+								exit(1);
+							}
+						}
+					} 
+			  
+					cout<<"BY NBR X-NEW TABLE"<<endl<<"count"<<exPort<<endl;//export
+					for(int opw=0;opw<=exPort;opw++)//export
+					{cout<<"Dest "<< destx[opw]<<" Path "<<pathx[opw]<<" Hops:"<<hop_countx[opw]<<endl;}//x
+				
+				
+				}//if
+
+					//////////////////////
+					}
+					else
+					{
+						//////////////////////////////////
+						//if port == external port()
+					int markw=0,len_of_pathw=0,lenw=0,indxw=0,trackerw[100]={NULL},opw,szw;
+								
+					string expired_nodew=str; 
+					char dummyw[100];
+                    markw=0;  
+				for(opw=0; opw<=count; opw++)//export
+				{
+					if (dest[opw]==expired_nodew)//x 
+					{      //Found node which has expired timer
+						cout<<"Found expired node above"<<endl;
+						markw=1;
+					}	
+				}
+				cout<<"markw"<<markw<<endl;
+			         const char *dest_rmvw = expired_nodew.c_str();
+                     indxw=0;
+				if(markw==1)
+				{
+					for(opw=0; opw<=count; opw++)//export
+					{    
+                        len_of_pathw=(path[opw].size()); //x
+						const char *path_comparew = (path[opw]).c_str();//x
+						lenw=0;
+						while(lenw<=len_of_pathw)
+						{       szw=0;		       	
+								for(int varw=lenw; varw<=(lenw+4); varw++)
+								{   
+                                                 dummyw[szw]=path_comparew[varw]; 
+													szw++;
+						   	
+								}
+						dummyw[szw]=NULL;
+								if(strcmp(dummyw,dest_rmvw)==0)
+								{ //expired node found in path
+								
+								//delete entry
+								path[opw]="";//x
+								dest[opw]="";//x
+								trackerw[indxw]=opw; 
+								indxw++;
+								lenw=len_of_pathw+1;
+								}
+								else
+								{
+                                 lenw=lenw+6;
+								} 
+						}//while
+					}//for
+			      indxw--;
+					while(indxw>=0)
+					{ 
+						while(path[count]=="")//export x
+						{
+							count=count-1;//export
+							if(count<0)
+								{break;}
+							//condition
+						}
+						if(count<0)
+								{break;}
+
+						while(trackerw[indxw]>count)//export 
+						{
+						trackerw[indxw]=NULL;
+						indxw--;                       
+						
+						}
+						//condition
+						if(indxw>=0)
+						{
+						path[trackerw[indxw]]=path[count];//export x
+						dest[trackerw[indxw]]=dest[count];//export x
+						hop_count[trackerw[indxw]]=hop_count[count];//export x
+						path[count]="";			 //export x 
+						dest[count]="";//export x
+						hop_count[count]=NULL;//export x
+						trackerw[indxw]=NULL;
+						indxw--;
+						count=count-1;
+						}
+					 }
+					 for(k=1; k<MaxNeighbors; k++)
+					{
+						if(k!=i)//conditions port
+						{	
+							if (sendto(sockfd[k], Buffer, sizeof(Buffer), 0, (struct sockaddr *) &servaddr[k], sizeof(servaddr[k])) < 0) 
+							{
+								cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+								exit(1);
+							}
+						}
+					} 
+			  
+					cout<<"BY NBR NEW TABLE"<<endl<<"count"<<count<<endl;//export
+					for(int opw=0;opw<=count;opw++)//export
+					{cout<<"Dest "<< dest[opw]<<" Path "<<path[opw]<<" Hops:"<<hop_count[opw]<<endl;}//x
+				
+				
+				}//if
+
+						//////////////////////////////////////
+					}
+				}
+				else if (Buffer[sk-1]=='d')
+				{
+					//cout<<"Data message "<<endl;
+					cout<<"Message received "<<Buffer<<endl;
+					cout<<"DONE"<<endl;
+			int dataflag=0;
+
+			rye1="";
+			wen1=""; 
+
+				for(int ri1=sk-6;ri1<sk-1;ri1++)
+				{
+					wen1+=Buffer[ri1];
+				}
+	
+				if((wen1==str_cmp))
+				{cout<<"MESSAGE RCVD DESTINATION:"<<Buffer<<endl;
+				}
+				else
+				{
+				
+				int ind1=100;
+				for(int yi1=0;yi1<=count;yi1++)//& export
+				{	
+				   if(wen1==dest[yi1])//destx
+				   {
+					 ind1=yi1;
+					dataflag=1;
+					break;
+				    }
+				}
+				for(int yi1=0;yi1<=exPort & ind1==100;yi1++)//& export
+				{	
+				   if(wen1==destx[yi1])//destx
+				   {
+					 ind1=yi1;
+					dataflag=2;
+					break;
+				    }
+				}
+					if(dataflag==1)
+					{
+					const char *rxe1 = path[ind1].c_str();
+					int lengthpath2=strlen(rxe1);
+					for (int mi1=lengthpath2-11; mi1<lengthpath2-6;mi1++)
+					{
+						rye1+=rxe1[mi1];
+					}
+					}
+					else if(dataflag==2)
+					{
+					const char *rxe1 = pathx[ind1].c_str();
+					int lengthpath2=strlen(rxe1);
+					for (int mi1=lengthpath2-11; mi1<lengthpath2-6;mi1++)
+					{
+						rye1+=rxe1[mi1];
+					}
+					}
+					if (ind1!=100){
+							
+			int fi1=0;
+			for(int wp=1; wp<MaxNeighbors; wp++)
+			{            if(r[wp]==rye1)
+			   {  		fi1=wp;
+			              break;
+			    }
+			}
+			
+		cout<<fi1<<"sk"<<sockfd[fi1]<<endl;
+		cout<<"p1"<<p1[fi1]<<endl;
+			
+				if (sendto(sockfd[fi1], Buffer, sizeof(Buffer), 0, (struct sockaddr *) &servaddr[fi1], sizeof(servaddr[fi1])) < 0) 
+				{
+					cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+					exit(1);
+				}	
+}
+
+else
+{
+cout<<"Destination unreachable"<<endl;
+}
+memset(Buffer,0,SIZE);
+}
+				}
+			}
+		}
+		for(i=1; i<MaxNeighbors; i++)
+		{
+			time(&timerList[0]);
+			double x=difftime(timerList[0],timerList[i]);
+			if(x>diff && start[i]==1)
+			{
+				if(counter_alarm[i]<3)
+				{
+					counter_alarm[i] +=1;
+					time(&timerList[i]);
+						if (sendto(sockfd[i], KeepAlive, sizeof(KeepAlive), 0, (struct sockaddr *) &servaddr[i], sizeof(servaddr[i])) < 0) 
+						{
+							cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+							exit(1);
+						}
+					}
+				else
+				{
+					start[i]=0;
+					if((external_port[1]==p1[i]) || (external_port[2]==p1[i]))
+					{
+						int mark=0,len_of_path=0,len=0,indx=0,tracker[100]={NULL},op,szq;
+								
+					string expired_node=r[i];
+					char dummy[100];
+				cout<<" ========"<<expired_node<<exPort<<endl;
+				for(op=0; op<=exPort; op++)//exPort
+				{
+					if (destx[op]==expired_node) //destx
+					{      //Found node which has expired timer
+						cout<<"Found expired node below"<<endl;
+						mark=1;
+					}	
+				}
+			         const char *dest_rmv=expired_node.c_str();
+			         
+					 
+                     indx=0;
+				if(mark==1)
+				{
+					for(op=0; op<=exPort; op++)//exPort
+					{    
+                        len_of_path=(pathx[op].size());//pathx 
+						const char *path_compare = (pathx[op]).c_str();//x
+						len=0;
+						while(len<=len_of_path)
+						{   	szq=0;		       	
+								for(int var=len; var<=(len+4); var++)
+								{   
+                                                 dummy[szq]=path_compare[var]; 
+													szq++;
+						   	
+								}
+						dummy[szq]=NULL;
+								if(strcmp(dummy,dest_rmv)==0)
+								{ //expired node found in path
+								
+								//delete entry
+								pathx[op]="";//x
+								destx[op]="";//x
+								tracker[indx]=op; 
+	                            cout<<"indx"<<indx<<endl<<tracker[indx]<<endl;
+														
+							    indx++;
+								len=len_of_path+1;
+								}
+								else
+								{
+                                 len=len+6;
+								} 
+						}//while
+					}//for
+                     cout<<"cnt_befor"<<exPort<<endl;
+			  indx--;
+					while(indx>=0)
+					{ 
+						while(pathx[exPort]=="")//x
+						{
+							exPort=exPort-1;//exPort
+							if(exPort<0)
+								{break;}
+						}
+						if(exPort<0)
+								{break;}
+						while(tracker[indx]>exPort)//exPort
+						{
+						tracker[indx]=NULL;
+						indx--;                       
+						} cout<<"indx_ff"<<indx<<endl<<"cn"<<exPort<<endl;
+						if(indx>=0)
+						{
+						pathx[tracker[indx]]=pathx[exPort];//x
+						destx[tracker[indx]]=destx[exPort];//x
+						hop_countx[tracker[indx]]=hop_countx[exPort];//x exPort
+						pathx[exPort]="";			  //x exPort
+						destx[exPort]="";//x exPort
+						hop_countx[exPort]=NULL;//x exPort
+						tracker[indx]=NULL;
+						indx--;
+						exPort=exPort-1; cout<<"del_count"<<exPort<<endl; //exPort
+             		   }cout<<"true"<<endl;
+					 }
+					 expired_node+="w";
+					 const char *dest_rmvq=expired_node.c_str();
+			    	for(k=1; k<MaxNeighbors; k++)
+					{
+						if((k!=i)&& ((external_port[1]==p1[k]) || (external_port[2]==p1[k])) )
+						{	
+							if (sendto(sockfd[k], dest_rmvq, sizeof(dest_rmvq), 0, (struct sockaddr *) &servaddr[k], sizeof(servaddr[k])) < 0) 
+							{
+								cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+								exit(1);
+							}
+						}
+					} 
+			  
+				}//if
+
+				cout<<"NEW X-TABLE"<<endl<<"count"<<exPort<<endl;
+				for(int op=0;op<=exPort;op++)//exPort
+				{cout<<"Dest "<< destx[op]<<" Path "<<pathx[op]<<" Hops:"<<hop_countx[op]<<endl;}//x 
+					}
+					else{
+					//withdrawl my neighbor
+					//withdraw msg
+					int mark=0,len_of_path=0,len=0,indx=0,tracker[100]={NULL},op,szq;
+								
+					string expired_node=r[i];
+					char dummy[100];
+                   
+				for(op=0; op<=count; op++)//exPort
+				{
+					if (dest[op]==expired_node) //destx
+					{      //Found node which has expired timer
+						cout<<"Found expired node below"<<endl;
+						mark=1;
+					}	
+				}
+			         const char *dest_rmv=expired_node.c_str();
+			         
+					 
+                     indx=0;
+				if(mark==1)
+				{
+					for(op=0; op<=count; op++)//exPort
+					{    
+                        len_of_path=(path[op].size());//pathx 
+						const char *path_compare = (path[op]).c_str();//x
+						len=0;
+						while(len<=len_of_path)
+						{   	szq=0;		       	
+								for(int var=len; var<=(len+4); var++)
+								{   
+                                                 dummy[szq]=path_compare[var]; 
+													szq++;
+						   	
+								}
+						dummy[szq]=NULL;
+								if(strcmp(dummy,dest_rmv)==0)
+								{ //expired node found in path
+								
+								//delete entry
+								path[op]="";//x
+								dest[op]="";//x
+								tracker[indx]=op; 
+	                            cout<<"indx"<<indx<<endl<<tracker[indx]<<endl;
+														
+							    indx++;
+								len=len_of_path+1;
+								}
+								else
+								{
+                                 len=len+6;
+								} 
+						}//while
+					}//for
+                     cout<<"cnt_befor"<<count<<endl;
+			  indx--;
+					while(indx>=0)
+					{ 
+						while(path[count]=="")//x
+						{
+							count=count-1;//exPort
+						if(count<0)
+						{break;}
+					
+						}
+						if(count<0)
+						{break;}
+					
+						while(tracker[indx]>count)//exPort
+						{
+						tracker[indx]=NULL;
+						indx--;                       
+						} cout<<"indx_ff"<<indx<<endl<<"cn"<<count<<endl;
+						if(indx>=0)
+						{
+						path[tracker[indx]]=path[count];//x
+						dest[tracker[indx]]=dest[count];//x
+						hop_count[tracker[indx]]=hop_count[count];//x exPort
+						path[count]="";			  //x exPort
+						dest[count]="";//x exPort
+						hop_count[count]=NULL;//x exPort
+						tracker[indx]=NULL;
+						indx--;
+						count=count-1; cout<<"del_count"<<count<<endl; //exPort
+             		   }cout<<"true"<<endl;
+					 }
+					 expired_node+="w";
+					 const char *dest_rmvq=expired_node.c_str();
+			    	for(k=1; k<MaxNeighbors; k++)
+					{
+						if(k!=i)//&& ((external_port[1]==p1[k]) || (external_port[2]==p1[k]))
+						{	
+							if (sendto(sockfd[k], dest_rmvq, sizeof(dest_rmvq), 0, (struct sockaddr *) &servaddr[k], sizeof(servaddr[k])) < 0) 
+							{
+								cout<<"Error: Sendto Problem"<<argv[0]<<endl;
+								exit(1);
+							}
+						}
+					} 
+			  
+				}//if
+
+				cout<<"NEW TABLE"<<endl<<"count"<<count<<endl;
+				for(int op=0;op<=count;op++)//exPort
+				{cout<<"Dest "<< dest[op]<<" Path "<<path[op]<<" Hops:"<<hop_count[op]<<endl;}//x 
+					
+				}
+				alarm[i]=0;
+				}
+			}
+		}
+	}
+	
+  return 0;
+}
