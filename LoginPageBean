@@ -1,0 +1,144 @@
+package uipages;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+
+//Login page Bean name as "login" manages login and logout process
+@ManagedBean(name="login")
+@SessionScoped
+public class LoginPageBean implements Serializable {
+	String str= "IRS LOGIN";
+
+	//Database connection string and table name initialization
+	private static String dbURL = "jdbc:derby://localhost:1527/irsdatabase;create=true;user=neeraj;password=neeraj";
+	private static String tablename = "irsdatabase.userlogininfo";
+
+	//Database connection and statement initialization
+	private static Connection conn = null;
+	private static Statement stmt = null;
+
+
+	public String getStr() {
+		return str;
+	}
+
+	//Stores and returns username and password with getter and setter method
+	static String username;
+	private String password;
+
+	/**
+	 * @return the username
+	 */
+	public String getUsername() {
+		return username;
+	}
+	/**
+	 * @param username
+	 *            the username to set
+	 */
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	/**
+	 * @return the password
+	 */
+	public String getPassword() {
+		return password;
+	}
+	/**
+	 * @param password
+	 *            the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	//Creates Database Connection
+	//Prints stack trace if database connection fails
+	private static void createConnection()
+	{
+		try
+		{
+			Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
+			conn = DriverManager.getConnection(dbURL);
+		}
+		catch (Exception except)
+		{
+			except.printStackTrace();
+		}
+	}
+
+	//Closes Database connection
+	//Prints stack trace if closing database connection fails
+	private static void shutdown()
+	{
+		try
+		{
+			if(stmt!=null){
+				stmt.close();
+			}
+			if(conn!=null){
+				DriverManager.getConnection(dbURL + ";shutdown=true");
+			}
+		}
+		catch (Exception except)
+		{
+			except.printStackTrace();
+		}
+	}
+
+	//Business logic to validate user login by matching "username" and "password" stored in the database
+	public String checkValidity() {	
+	
+		//Create database connection
+		createConnection();
+		PreparedStatement ps = null;
+		try
+		{
+		//Select username and password if it exusts in database
+			ps = conn.prepareStatement("select username, password from " + tablename + " where username= ? and password= ? ");
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) // user record found
+			{
+				HttpSession session = HttpsessionUtility.getSession();
+				session.setAttribute("username", username);
+				//returns success if user entered entry is found in database
+				return "success";
+			}
+			else
+			{
+				//returns failure if user entered entry is not found in database
+				return "failure";
+			}
+		}
+		catch (SQLException sqlExcept)
+		{
+			sqlExcept.printStackTrace();
+		}
+		//return failure if any error occurs and block user
+		return "failure";
+
+		//Close database connection
+		shutdown();
+	}
+
+	public String logout() {
+	//Code to invalidate session and logout the user
+		HttpSession session = HttpsessionUtility.getSession();
+		session.invalidate();
+		//return login screen on logout
+		return "login";
+	}
+
+}
