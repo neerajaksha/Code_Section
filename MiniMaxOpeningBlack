@@ -1,0 +1,309 @@
+package ninemensmorris;
+import java.io.*;
+import java.util.*;
+/**
+ * 
+ * @author Neerajaksha Gangaraju
+ *
+ */
+
+//MiniMaxOpeningBlack Program
+public class MiniMaxOpeningBlack {
+
+	// Variable to keep track of the number of positions evaluated by static estimation function
+	static int Static_positions_evaluated=0;
+
+	static ArrayList<String> GenerateMovesOpening(String board, char color)
+	{
+		// Returns the list - "Board_Positions_List" produced by GenerateAdd function when applied to board
+		ArrayList<String> Board_Positions_List = new ArrayList<String>();
+		Board_Positions_List = GenerateAdd( board, color );
+		return Board_Positions_List;
+	}
+
+	static ArrayList<String> GenerateAdd(String board, char player)
+	{
+		// Adds new generated board positions to list - "Positions_List"
+		ArrayList<String> Positions_List = new ArrayList<String>();
+
+		// Copy of Initial Board position in "myboard"
+		char[] myboard = board.toCharArray();
+
+		for(int i=0; i<23; i++)
+		{
+			// Create temporary copy of board 
+			char[] tempcopy = Arrays.copyOf(myboard, 23);
+
+			// Check for milling
+			if (myboard[i] == 'x'){
+				tempcopy[i] = player;
+				if (closemill( i, tempcopy)){
+					if(player == 'W'){
+						// For WHITE Player with MILL, Remove a BLACK Position
+						GenerateRemove(tempcopy, Positions_List, 'B');
+					}
+					else {
+						// For BLACK Player with MILL, Remove a WHITE Position
+						GenerateRemove(tempcopy, Positions_List, 'W');
+					}
+				}
+				else
+				{
+					// Add Board Position named - "New_position" in the List
+					String New_position = new String(tempcopy);
+					Positions_List.add(New_position);
+				}
+			}
+		}
+		return Positions_List;
+
+	}
+
+	static ArrayList<String> GenerateRemove(char[] board, ArrayList<String> Positions_List, char player)
+	{
+		// Removes the "player" pieces in the board and appends the new generated position to the list - "Positions_List"
+		int List_Size = Positions_List.size();
+		for(int i=0; i<23; i++)
+		{
+			if(board[i]==player)
+			{
+				if(!closemill(i,board))
+				{
+					char[] board_copy = new char[23];
+					for(int j=0; j<23; j++)
+					{
+						board_copy[j] = board[j];
+					}
+					board_copy[i]='x';
+					String New_position = new String(board_copy);
+					Positions_List.add(New_position);
+				}
+			}
+		}
+		if(List_Size == Positions_List.size()) {
+			// No "player" pieces were removed. Hence, no positions were added
+			// Adding board position to the list
+			String New_position = new String(board);
+			Positions_List.add(New_position);
+
+		}
+		return Positions_List;	
+	}
+
+	static boolean closemill(int j,char[] board)
+	{
+		// Returns TRUE if mill forming possibility is found 
+		char input_position = board[j];
+		if(input_position=='B' || input_position=='W')
+		{
+			switch(j) {
+			case 0:{if( (board[1]==input_position && board[2]==input_position) || (board[3]==input_position && board[6]==input_position) || (board[8]==input_position && board[20]==input_position) ) return true; else return false;}
+			case 1:{if( (board[0]==input_position && board[2]==input_position) ) return true; else return false;}
+			case 2:{if( (board[0]==input_position && board[1]==input_position) || (board[5]==input_position && board[7]==input_position) || (board[13]==input_position && board[22]==input_position) ){return true;} else return false;}
+			case 3:{if( (board[0]==input_position && board[6]==input_position) || (board[17]==input_position && board[9]==input_position) || (board[4]==input_position && board[5]==input_position) ) return true; else return false;}
+			case 4:{if( (board[3]==input_position && board[5]==input_position) ) return true; else return false;}
+			case 5:{if( (board[3]==input_position && board[4]==input_position) || (board[12]==input_position && board[19]==input_position) || (board[2]==input_position && board[7]==input_position) ) return true; else return false;}
+			case 6:{if( (board[0]==input_position && board[3]==input_position) || (board[10]==input_position && board[14]==input_position) ) return true; else return false;}
+			case 7:{if( (board[11]==input_position && board[16]==input_position) || (board[5]==input_position && board[2]==input_position) ) return true; else return false;}
+			case 8:{if( (board[0]==input_position && board[20]==input_position) || (board[9]==input_position && board[10]==input_position) ) return true; else return false;}
+			case 9:{if( (board[8]==input_position && board[10]==input_position) || (board[17]==input_position && board[3]==input_position) ) return true; else return false;}
+			case 10:{if( (board[14]==input_position && board[6]==input_position) || (board[8]==input_position && board[9]==input_position) ) return true; else return false;}
+			case 11:{if( (board[7]==input_position && board[16]==input_position) || (board[12]==input_position && board[13]==input_position) ) return true; else return false;}
+			case 12:{if( (board[11]==input_position && board[13]==input_position)|| (board[5]==input_position && board[19]==input_position) ) return true; else return false;}
+			case 13:{if( (board[2]==input_position && board[22]==input_position) || (board[11]==input_position && board[12]==input_position) ) return true; else return false;}
+			case 14:{if( (board[10]==input_position && board[6]==input_position) || (board[15]==input_position && board[16]==input_position) || (board[20]==input_position && board[17]==input_position) ) return true; else return false;}
+			case 15:{if( (board[14]==input_position && board[16]==input_position) || (board[18]==input_position && board[21]==input_position) ) return true; else return false;}
+			case 16:{if( (board[14]==input_position && board[15]==input_position) || (board[7]==input_position && board[11]==input_position) || (board[19]==input_position && board[22]==input_position) ) return true; else return false;}
+			case 17:{if( (board[3]==input_position && board[9]==input_position) || (board[20]==input_position && board[14]==input_position) || (board[18]==input_position && board[19]==input_position) ) return true; else return false;}
+			case 18:{if( (board[17]==input_position && board[19]==input_position) || (board[21]==input_position && board[15]==input_position) ) return true; else return false;}
+			case 19:{if( (board[5]==input_position && board[12]==input_position) || (board[17]==input_position && board[18]==input_position) || (board[16]==input_position && board[22]==input_position) ) return true; else return false;}
+			case 20:{if( (board[8]==input_position && board[0]==input_position) || (board[21]==input_position && board[22]==input_position) || (board[17]==input_position && board[14]==input_position) ) return true; else return false;}
+			case 21:{if( (board[15]==input_position && board[18]==input_position) || (board[20]==input_position && board[22]==input_position) ) return true; else return false;}
+			case 22:{if( (board[20]==input_position && board[21]==input_position) || (board[13]==input_position && board[2]==input_position) || (board[16]==input_position && board[19]==input_position) ) return true; else return false;}
+			default: return false;
+			}
+		}
+		else return false;
+
+	}
+
+	static genericMoveState MaxMin(genericMoveState board,int depth)
+	{
+		// MaxMin routine which returns the max_node for BLACK Opening
+		String board_position = (String)board.getmoveState();
+
+		if(depth==0) {
+			// Call static_estimation for Leaf node which updates the node's minimax value
+			return static_estimation(board);
+		}
+		else
+		{	
+			//Create Max-Node with input board position and set to small default minimax value of -100000
+			genericMoveState max_node = new genericMoveState(board.getmoveState());
+			max_node.setvalue(-100000);
+
+			//Create parent node
+			genericMoveState parent = new genericMoveState();
+
+			//BoardList is the list that contains all possible moves generated by "GenerateMovesOpening" for 'B'
+			ArrayList<String> BoardList = new ArrayList<String>();
+			BoardList = GenerateMovesOpening(board_position, 'B');
+
+			for(int j=0; j<BoardList.size(); j++)
+			{
+				//Saving board position in "parent" object
+				parent.setmoveState(BoardList.get(j));
+
+				//Get Max-Node by comparing values in getMax routine
+				max_node = getMax((Integer)max_node.getvalue(), (String)max_node.getmoveState(), (String)max_node.getinitialState(), (MinMax(parent,depth-1)));
+			}
+
+			//Update Max-Node's state
+			max_node.setcurrentState(max_node.getinitialState());
+			max_node.setinitialState(board_position);
+
+			return max_node;
+		}
+	}
+
+	static genericMoveState MinMax(genericMoveState board, int depth)
+	{
+		// MinMax routine which returns the min_node
+		String board_position = (String)board.getmoveState();
+
+		if(depth == 0) {
+			// Call static_estimation for Leaf node which updates the node's minimax value
+			return static_estimation(board);
+		}
+		else
+		{	
+			//Create Min-Node with input board position and set to large default minimax value of 100000
+			genericMoveState min_node = new genericMoveState(board.getmoveState());
+			min_node.setvalue(100000);
+
+			//Create parent node
+			genericMoveState parent = new genericMoveState();
+
+			//BoardList is the list that contains all possible moves generated by "GenerateMovesOpening" for 'W'
+			ArrayList<String> BoardList = new ArrayList<String>();
+			BoardList = GenerateMovesOpening(board_position, 'W');
+
+			for(int i=0; i<BoardList.size(); i++)
+			{
+				//Saving board position in "parent" object
+				parent.setmoveState(BoardList.get(i));
+
+				//Get Min-Node by comparing values in getMin routine
+				min_node = getMin((Integer)min_node.getvalue(), (String)min_node.getmoveState(), (String)min_node.getinitialState(), (MaxMin(parent,depth-1)) );
+
+			}
+
+			//Update Min-Node's state
+			min_node.setcurrentState(min_node.getinitialState());
+			min_node.setinitialState(board_position);
+
+			return min_node;
+		}
+	}
+
+
+
+	static genericMoveState getMax(Integer old_value, String move, String initial, genericMoveState new_object) {
+		// Compares 'old_value' with value in 'new_object' and returns object with MAX value 
+		if( old_value >= (Integer)new_object.getvalue() ) {
+			// Construct a temporary object and fill the required fields
+			genericMoveState temp_object = new genericMoveState();
+			temp_object.setvalue(old_value);
+			temp_object.setmoveState(move);
+			temp_object.setinitialState(initial);
+			return temp_object; 
+		}
+		else 
+			return new_object; 
+	} 
+
+	static genericMoveState getMin(Integer old_value, String move, String initial, genericMoveState new_object) { 
+		// Compares 'old_value' with value in 'new_object' and returns object with MIN value 
+		if( old_value <= (Integer)new_object.getvalue()) {
+			// Construct a temporary object and fill the required fields
+			genericMoveState temp_object = new genericMoveState();
+			temp_object.setvalue(old_value);
+			temp_object.setmoveState(move);
+			temp_object.setinitialState(initial);
+			return temp_object; 
+		}
+		else 
+			return new_object; 
+	}
+
+	static genericMoveState static_estimation(genericMoveState leaf)
+	{
+		// Contains formula of static_estimation for Minimax_Opening state
+		// Increment counter to find the number of positions evaluated by Static estimation function
+		Static_positions_evaluated++;
+
+		String board_position = (String)leaf.getmoveState();
+		char[] board = board_position.toCharArray();
+		int numBlackpieces=0, numWhitepieces=0;
+
+		//Counts the number of WHITE and BLACK positions
+		for(int i=0; i<23; i++)
+		{
+			if(board[i]=='W') {
+				numWhitepieces++;
+			}
+			else if(board[i]=='B') {
+				numBlackpieces++;
+			}
+		}
+
+		leaf.setvalue(numBlackpieces-numWhitepieces);
+		return (leaf);
+	}
+
+	public static void main(String args[]) throws Exception
+	{
+		try
+		{
+			//Set DEPTH
+			int depth=Integer.parseInt(args[2]);
+
+			FileReader in = new FileReader(args[0]);
+			BufferedReader br = new BufferedReader(in);
+
+			//Read Input string
+			String input = br.readLine();	
+			FileWriter out = new FileWriter(args[1]);
+			BufferedWriter write = new BufferedWriter(out);
+
+			genericMoveState myboard = new genericMoveState(input);
+
+			//output is the Max-node
+			genericMoveState output = MaxMin(myboard,depth);
+
+			//Get Minimax_extimate & bestmove
+			int Minimax_extimate = (Integer)output.getvalue();
+			String bestmove = (String)output.getcurrentState();
+
+			System.out.println("Best Move    " + bestmove);
+
+			//Print Minimax_extimate
+			System.out.println("MinMax Estimate = " + Minimax_extimate);
+
+			//Print Static_positions_evaluated
+			System.out.println("Positions Evaluated:"+" stat "+Static_positions_evaluated);
+
+			//Write output string along with minimax estimate and positions evaluated count
+			out.write(bestmove + " " + Minimax_extimate + " " + Static_positions_evaluated);
+			out.close();
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+
+	}
+
+}
+
+
