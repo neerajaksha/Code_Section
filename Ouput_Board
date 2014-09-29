@@ -1,0 +1,151 @@
+ARTIFICIAL INTELLIGENCE
+Programming Project
+
+Submitted By: Neerajaksha Gangaraju
+
+OUTPUT RESULTS:
+1.	MiniMaxOpening.java
+
+a.	INPUT BOARD:  xxxxxxxxxWxxxxxxBxxxxxx
+Depth: 3
+OUTPUT BOARD: WxxxxxxxxWxxxxxxBxxxxxx
+MiniMax Estimate: 1
+Positions Evaluated: 8056
+
+b.	INPUT BOARD:  xxxBxxxxWxxxBBxxxWxWxxx
+Depth: 3
+OUTPUT BOARD: xxxBxxxxWxxxxBxxxWWWxxx
+MiniMax Estimate: 2
+Positions Evaluated: 6403
+
+
+2.	MiniMaxGame.java
+
+a.	INPUT BOARD:  BxxBWxxxxWxxxWxxxBxBxWx
+Depth: 5
+OUTPUT BOARD: BWxBxxxxxWxxxWxxxBxBxWx
+MiniMax Estimate: -8
+Positions Evaluated: 94942
+
+b.	INPUT BOARD:  BxxBxWxxxxxxxWWxxWxBxBx
+Depth: 5
+OUTPUT BOARD: BxxBxWxxxxxxxWWxxxxBWBx
+MiniMax Estimate: -10
+Positions Evaluated: 157740
+
+
+3.	ABOpening.java
+
+a.	INPUT BOARD:  xxxxxxxxxWxxxxxxBxxxxxx
+Depth: 3
+OUTPUT BOARD: WxxxxxxxxWxxxxxxBxxxxxx
+MiniMax Estimate: 1
+Positions Evaluated: 798
+
+b.	INPUT BOARD:  xxxBxxxxWxxxBBxxxWxWxxx
+Depth: 3
+OUTPUT BOARD: xxxBxxxxWxxxxBxxxWWWxxx
+MiniMax Estimate: 2
+Positions Evaluated: 1770
+
+
+4.	ABGame.java
+
+a.	INPUT BOARD:  BxxBWxxxxWxxxWxxxBxBxWx
+Depth: 5
+OUTPUT BOARD: BWxBxxxxxWxxxWxxxBxBxWx
+MiniMax Estimate: -8
+Positions Evaluated: 2946
+
+b.	INPUT BOARD:  BxxBxWxxxxxxxWWxxWxBxBx
+Depth: 5
+OUTPUT BOARD: BxxBxWxxxxxxxWWxxxxBWBx
+MiniMax Estimate: -10
+Positions Evaluated: 9918
+
+
+5.	MiniMaxOpeningBlack.java
+
+a.	INPUT BOARD:  xxxxxxxxxBxxxxxxWxxxxxx
+Depth: 3
+OUTPUT BOARD: BxxxxxxxxBxxxxxxWxxxxxx
+MiniMax Estimate: 1
+Positions Evaluated: 8056
+
+b.	INPUT BOARD:  xxxWxxxxBxxxWWxxxBxBxxx
+Depth: 3
+OUTPUT BOARD: xxxWxxxxBxxxxWxxxBBBxxx
+MiniMax Estimate: 2
+Positions Evaluated: 6403
+
+
+6.	MiniMaxGameBlack.java
+
+a.	INPUT BOARD:  WxxWBxxxxBxxxBxxxWxWxBx
+Depth: 5
+OUTPUT BOARD: WBxWxxxxxBxxxBxxxWxWxBx
+MiniMax Estimate: -8
+Positions Evaluated: 94942
+
+b.	INPUT BOARD:  WxxWxBxxxxxxxBBxxBxWxWx
+Depth: 5
+OUTPUT BOARD: WxxWxBxxxxxxxBBxxxxWBWx
+MiniMax Estimate: -10
+Positions Evaluated: 157740
+
+
+7.	MiniMaxOpeningImproved.java
+
+a.	INPUT BOARD:  xxxxxxxxxWxxxxxxBxxxxxx
+Depth: 3
+
+ORIGINAL OUTPUT BOARD: WxxxxxxxxWxxxxxxBxxxxxx
+MiniMax Estimate: 1
+Positions Evaluated: 8056
+
+IMPROVED OUTPUT BOARD: xxxxxxxxxWxxxxxxBWxxxxx
+MiniMax Estimate: 34
+Positions Evaluated: 8056
+
+Explanation for Improvement: The static estimation function always pushes the input board position to find the 
+output board position such that it has possibility of formation of mill and presence of number of same player 
+neighbours. So for the above input, ‘W’ is added in an adjacent position hoping that mill formation will become 
+easy in future.
+
+b.	INPUT BOARD:  BxxxxxWxxWxBxWxBxWxBxBW
+Depth: 3
+
+ORIGINAL OUTPUT BOARD: BxWxxxWxxWxBxWxxxWxBxBW
+MiniMax Estimate: 2
+Positions Evaluated: 5910
+
+IMPROVED OUTPUT BOARD: xxxWxxWxxWxBxWxBxWxBxBW
+MiniMax Estimate: 126
+Positions Evaluated: 5910
+
+Explanation for Improvement: The static estimation function always pushes the input board position to find the output board position such that it has possibility of formation of mill and presence of number of same player neighbours. So for the above input, ‘W’ is added in a position where mill can be formed as well as looks for presence of an adjacent position of same player hoping that mill formation will become easy in future.
+
+
+8.	MiniMaxGameImproved.java
+
+a.	INPUT BOARD:  BxxxxxWxxWxBxWxBxWxBxBW
+Depth: 5
+
+ORIGINAL OUTPUT BOARD: BxxWxxxxxWxBxWxBxWxBxxW
+MiniMax Estimate: 1955
+Positions Evaluated: 290515
+
+IMPROVED OUTPUT BOARD: BxxWxxxxxWxBxWxxxWxBxBW
+MiniMax Estimate: 1989
+Positions Evaluated: 290515
+
+b.	INPUT BOARD:  BxxBxWxxxxxxxWWxxWxBxBx
+Depth: 5
+
+ORIGINAL OUTPUT BOARD: BxxBxWxxxxxxxWWxxxxBWBx
+MiniMax Estimate: -10
+Positions Evaluated: 157740
+
+IMPROVED OUTPUT BOARD: BxxBxxxxxxxxWWWxxWxBxBx
+MiniMax Estimate: -8
+Positions Evaluated: 157740
