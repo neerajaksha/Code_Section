@@ -1,0 +1,53 @@
+package ninemensmorris;
+
+public class genericMoveState {
+
+	private Object a;
+	private Object b;
+	private Object c;
+	private Object d;
+
+	genericMoveState(){}
+
+	genericMoveState(Object board){
+		this.a = board;
+		this.d = board;
+	}
+
+	genericMoveState(Integer x){
+		this.b = x;
+	}
+
+	public Object getmoveState() {
+		return a;
+	}
+
+	public void setmoveState(Object a) {
+		this.a = a;
+	}
+
+	public Object getinitialState() {
+		return c;
+	}
+
+	public void setinitialState(Object c) {
+		this.c = c;
+	}
+
+	public Object getvalue() {
+		return b;
+	}
+
+	public void setvalue(Object b) {
+		this.b = b;
+	}
+
+	public Object getcurrentState() {
+		return d;
+	}
+
+	public void setcurrentState(Object d) {
+		this.d = d;
+	}
+
+}
