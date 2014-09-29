@@ -1,0 +1,150 @@
+package uipages;
+
+import javax.faces.bean.ManagedBean;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSetMetaData;
+
+//Register page bean named as "register" is used to manage Registration process of the user
+@ManagedBean(name="register")
+public class RegisterPageBean {
+	String str= "IRS REGISTER";
+
+	//Initialize Database connection string, table and statement
+	private static String dbURL = "jdbc:derby://localhost:1527/irsdatabase;create=true;user=neeraj;password=neeraj";
+	private static String tablename = "irsdatabase.userlogininfo";
+
+	private static Connection conn = null;
+	private static Statement stmt = null;
+
+
+	public String getStr() {
+		return str;
+	}
+
+	//Register page data fields
+	private String username;
+	private String password;
+	private String firstname;
+	private String lastname;
+
+
+	/**
+	 * @return the username
+	 */
+	public String getUsername() {
+		return username;
+	}
+	/**
+	 * @param username
+	 *            the username to set
+	 */
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	/**
+	 * @return the password
+	 */
+	public String getPassword() {
+		return password;
+	}
+	/**
+	 * @param password
+	 *            the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	/**
+	 * @return the firstname
+	 */
+	public String getFirstname() {
+		return firstname;
+	}
+	/**
+	 * @param firstname
+	 *            the firstname to set
+	 */
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
+	
+	/**
+	 * @return the lastname
+	 */
+	public String getLastname() {
+		return lastname;
+	}
+	/**
+	 * @param username
+	 *            the lastname to set
+	 */
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}
+
+
+	//Create Database connection
+	//Print stack trace if connection fails
+	private static void createConnection()
+	{
+		try
+		{
+			Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
+			conn = DriverManager.getConnection(dbURL);
+		}
+		catch (Exception except)
+		{
+			except.printStackTrace();
+		}
+	}
+	
+	//Close Database connection
+	//Print stack trace if closing connection fails
+	private static void shutdown()
+	{
+		try
+		{
+			if(stmt!=null){
+				stmt.close();
+			}
+			if(conn!=null){
+				DriverManager.getConnection(dbURL + ";shutdown=true");
+			}
+		}
+		catch (Exception except)
+		{
+			except.printStackTrace();
+		}
+	}
+
+	//Business logic to register the user by populating the database 
+	public String insertUserinfo() {		
+		createConnection();
+		try
+		{
+			stmt = conn.createStatement();
+			//Insert record into "userlogininfo" table 
+			stmt.executeUpdate("insert into " + tablename + "(username, password, firstname, lastname) "+ "values" + "('" + this.username +"','"+  this.password + "','" + this.firstname + "','" + this.lastname + "')");
+			stmt.close();
+			//return "registersuccess" page on populating the database
+			return "registersuccess";
+		}
+		catch (SQLException sqlExcept)
+		{
+			//Print stack trace if any error occurs
+			sqlExcept.printStackTrace();
+		}
+
+		//Close Database connection
+		shutdown();
+		//reload "register" page in this section on any unwarranted failure
+		return "register";
+	}
+		
+
+}
