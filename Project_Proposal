@@ -1,0 +1,38 @@
+Potential Project Proposal
+
+Student Name: NEERAJAKSHA GANGARAJU		Date: February 10th, 2013	
+
+Potential Project Name: IRS Tax Collection System
+
+Project Sponsor’s Name and Organization: The University of Texas at Dallas
+
+Justification or Reason for the Project: 
+IRS department needs a software package to maintain tax records of the increasing population in the US. 
+The main aim of this project is to implement a robust tax monitoring system that looks after the payments 
+and reporting of the individuals to Internal Revenue Service department.
+
+Main Project Deliverables:
+•	Working software package which includes following features:
+1.	Allows user to create and log-in to their account.
+2.	Enter tax information in form (EZ-1040), validate it and store in secure server.
+3.	Retrieve information from server when user queries for it.
+•	A Documentation file for usability
+•	System requirements information
+
+Required Team Skills: 
+•	Project planning, Collaboration, Requirements analysis, Design, Code, Testing
+•	HTML, Java, JSP, Tomcat
+
+Main Team Tasks/Roles:
+•	Create Project plan template and gather requirements. 
+•	Code HTML web page and forms and interface data with Apache server
+•	Session for each user and ability to retrieve stored data
+•	Test functionality and fix any existing bugs
+
+My Desired Role and Why: 
+Participation in project planning and analysis. 
+Enthusiastic and experienced in creating HTML web page and forms.
+
+Project Sales Pitch:
+IRS needs a robust software package to maintain the tax collection records. 
+My team is in the process of building the best software that is scalable and secure for the IRS. 
