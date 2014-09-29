@@ -1,0 +1,62 @@
+package uipages;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
+import javax.faces.validator.Validator;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+//Username page Bean named as "messages"
+@ManagedBean(name="messages")
+public class UsernamePageBean implements Validator{
+
+	//Business logic to check if the same user is registering again with same details and block the registration process
+	public void validate(FacesContext context, UIComponent validate,Object value) throws ValidatorException {		
+	
+		//Initialize Database parameters
+		String dbURL = "jdbc:derby://localhost:1527/irsdatabase;create=true;user=neeraj;password=neeraj";
+		String tablename = "irsdatabase.userlogininfo";
+		Connection conn = null;
+		Statement stmt = null;
+		
+		String username = value.toString();
+
+		try
+		{
+			Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
+			conn = DriverManager.getConnection(dbURL);
+		}
+		catch (Exception except)
+		{
+			except.printStackTrace();
+		}
+
+		try
+		{
+			stmt = conn.createStatement();
+			ResultSet results = stmt.executeQuery("select * from " + tablename);
+			while(results.next()) {
+				String uname = results.getString(1);
+				//If entered username is already present in "userlogininfo" table, disply error message to User
+				if (uname.equals(username)) {
+					FacesMessage msg = new FacesMessage("username exists!! Try another username");
+			        throw new ValidatorException(msg);
+				}
+			}
+		}
+		catch (SQLException sqlExcept)
+		{
+			sqlExcept.printStackTrace();
+		}
+
+	
+	}
+
+}
