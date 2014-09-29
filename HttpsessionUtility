@@ -1,0 +1,26 @@
+package uipages;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+//A session utility code used to get session or request for login process
+public class HttpsessionUtility {
+
+	//Utlity for getting session
+	public static HttpSession getSession() {
+		return (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+	}
+
+	//Utility for getting request
+	public static HttpServletRequest getRequest() {
+		return (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+	}
+
+	//Utility for getting username
+	public static String getUserName()
+	{
+		HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+		return  session.getAttribute("username").toString();
+	}
+
+}
