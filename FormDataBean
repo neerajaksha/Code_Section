@@ -1,0 +1,1088 @@
+package uipages;
+
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+ 
+ //Form Page Bean named as "form" which manages form data in "formdatainfo" table
+@ManagedBean(name="form")
+@SessionScoped
+
+public class FormDataBean implements Serializable{
+	
+	//Initialize Database parameters
+	private static String dbURL = "jdbc:derby://localhost:1527/irsdatabase;create=true;user=neeraj;password=neeraj";
+	private static String basictablename = "irsdatabase.userlogininfo";
+	private static String tablename = "irsdatabase.formdatainfo";
+	private static String submittablename = "irsdatabase.finaldatainfo";
+
+	private static Connection conn = null;
+	private static Statement stmt = null;
+
+	//Create 1040 Form related fields
+	private String firstname ;
+	private String lastname ;
+	private String ssn ;
+	
+	private String spfirstname = "na";
+	private String splastname = "na";
+	private String spssn="0000000000";
+
+	private String homeaddress = null;
+	private String aptno ;
+	
+	private String faddress ;
+	
+	private String fcountry ;
+	private String fcounty ;
+	private String fpostal ;
+	
+	private String totalwage ;
+	private String taxableinterest ;
+	private String compensation ;
+	private String grossincome ;
+	private String dependentexemption ;
+	private String dependentspouse = "Yes";
+	private String taxableincome ;
+	private String federaltax ;
+	private String eiccredit ;
+	private String combatpay ;
+	private String totalpaymentcredit ;
+	private String finaltaxableincome ;
+	
+	private String refund = "No";
+	private String routing ;
+	private String acctno ;
+	private String amountowed ;
+	
+	private String desgname = "na";
+	private String desgphone = "0000000000";
+	private String irspin = "00000";
+	
+	private String day ;
+	private String month ;
+	private String year ;
+	private String occupation ;
+	private String dayphone ;
+	
+	private String thirdpartyauth = "No";
+	
+	private String spday ;
+	private String spmonth ;
+	private String spyear ;
+	private String spoccupation = "na";
+	private String spirspin = "00000" ;
+	
+	private String preparername = "na" ;
+	private String pday = "00";
+	private String pmonth = "00";
+	private String pyear = "0000";
+	private String ptin = "00000";
+	private String firmname = "na" ;
+	private String firmaddr = "na"  ;
+	private String ein = "N0000"  ;
+	private String firmphone = "0000000000" ;
+
+	private String newpassword;
+	private String finaldisplay;
+	private String status = null; 
+	private Float payment = 0f; 
+	/**
+	 * @return the firstname
+	 */
+	public String getFirstname() {
+		return firstname;
+	}
+	/**
+	 * @param username
+	 *            the firstname to set
+	 */
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
+	
+	/**
+	 * @return the lastname
+	 */
+	public String getLastname() {
+		return lastname;
+	}
+	/**
+	 * @param lastname
+	 *            the lastname to set
+	 */
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}
+
+	/**
+	 * @return the ssn
+	 */
+	public String getSsn() {
+		return ssn;
+	}
+	/**
+	 * @param ssn
+	 *            the ssn to set
+	 */
+	public void setSsn(String ssn) {
+		this.ssn = ssn;
+	}
+
+	public String getSpfirstname() {
+		return spfirstname;
+	}
+	public void setSpfirstname(String spfirstname) {
+		this.spfirstname = spfirstname;
+	}
+	
+	public String getSplastname() {
+		return splastname;
+	}
+	public void setSplastname(String splastname) {
+		this.splastname = splastname;
+	}
+
+	public String getSpssn() {
+		return spssn;
+	}
+	public void setSpssn(String spssn) {
+		this.spssn = spssn;
+	}
+
+	public String gethomeaddress() {
+		return homeaddress;
+	}
+	public void sethomeaddress(String homeaddress) {
+		this.homeaddress = homeaddress;
+	}
+
+	public String getAptno() {
+		return aptno;
+	}
+	public void setAptno(String aptno) {
+		this.aptno = aptno;
+	}
+	
+	public String getFaddress() {
+		return faddress;
+	}
+	public void setFaddress(String faddress) {
+		this.faddress = faddress;
+	}
+	
+	public String getFcountry() {
+		return fcountry;
+	}
+	public void setFcountry(String fcountry) {
+		this.fcountry = fcountry;
+	}
+	
+	public String getFcounty() {
+		return fcounty;
+	}
+	public void setFcounty(String fcounty) {
+		this.fcounty = fcounty;
+	}
+	
+	public String getFpostal() {
+		return fpostal;
+	}
+	public void setFpostal(String fpostal) {
+		this.fpostal = fpostal;
+	}
+	
+	public String getTotalwage() {
+		return totalwage;
+	}
+	public void setTotalwage(String totalwage) {
+		this.totalwage = totalwage;
+	}
+	
+	public String getTaxableinterest() {
+		return taxableinterest;
+	}
+	public void setTaxableinterest(String taxableinterest) {
+		this.taxableinterest = taxableinterest;
+	}
+	
+	public String getCompensation() {
+		return compensation;
+	}
+	public void setCompensation(String compensation) {
+		this.compensation = compensation;
+	}
+	
+	public String getGrossincome() {
+		return grossincome;
+	}
+	public void setGrossincome(String grossincome) {
+		this.grossincome = grossincome;
+	}
+	
+	public String getDependentexemption() {
+		return dependentexemption;
+	}
+	public void setDependentexemption(String dependentexemption) {
+		this.dependentexemption = dependentexemption;
+	}
+	
+	public String getTaxableincome() {
+		return taxableincome;
+	}
+	public void settaxableincome(String taxableincome) {
+		this.taxableincome = taxableincome;
+	}	
+    
+    public String getFederaltax() {
+		return federaltax;
+	}
+	public void setFederaltax(String federaltax) {
+		this.federaltax = federaltax;
+	}
+	
+	public String getEiccredit() {
+		return eiccredit;
+	}
+	public void setEiccredit(String eiccredit) {
+		this.eiccredit = eiccredit;
+	}
+    
+	public String getCombatpay() {
+		return combatpay;
+	}
+	public void setCombatpay(String combatpay) {
+		this.combatpay = combatpay;
+	}
+	
+	public String getTotalpaymentcredit() {
+		return totalpaymentcredit;
+	}
+	public void setTotalpaymentcredit(String totalpaymentcredit) {
+		this.totalpaymentcredit = totalpaymentcredit;
+	}
+    	
+	public String getFinaltaxableincome() {
+		return finaltaxableincome;
+	}
+	public void setFinaltaxableincome(String finaltaxableincome) {
+		this.finaltaxableincome = finaltaxableincome;
+	}
+    
+    public String getRouting() {
+		return routing;
+	}
+	public void setRouting(String routing) {
+		this.routing = routing;
+	}
+	
+	public String getAcctno() {
+		return acctno;
+	}
+	public void setAcctno(String acctno) {
+		this.acctno = acctno;
+	}
+	
+	public String getAmountowed() {
+		return amountowed;
+	}
+	public void setAmountowed(String amountowed) {
+		this.amountowed = amountowed;
+	}
+	
+	public String getDesgname() {
+		return desgname;
+	}
+	public void setDesgname(String desgname) {
+		this.desgname = desgname;
+	}
+	
+	public String getDesgphone() {
+		return desgphone;
+	}
+	public void setDesgphone(String desgphone) {
+		this.desgphone = desgphone;
+	}
+	
+	public String getIrspin() {
+		return irspin;
+	}
+	public void setIrspin(String irspin) {
+		this.irspin = irspin;
+	}
+	
+	public String getThirdpartyauth() {
+		return thirdpartyauth;
+	}
+	public void setThirdpartyauth(String thirdpartyauth) {
+		this.thirdpartyauth = thirdpartyauth;
+	}
+	
+	public String getDependentspouse() {
+		return dependentspouse;
+	}
+	public void setDependentspouse(String dependentspouse) {
+		this.dependentspouse = dependentspouse;
+	}
+	
+	public String getRefund() {
+		return refund;
+	}
+	public void setRefund(String refund) {
+		this.refund = refund;
+	}
+	
+	public String getDay() {
+		return day;
+	}
+	public void setDay(String day) {
+		this.day = day;
+	}
+	
+	public String getMonth() {
+		return month;
+	}
+	public void setMonth(String month) {
+		this.month = month;
+	}
+	
+	public String getYear() {
+		return year;
+	}
+	public void setYear(String year) {
+		this.year = year;
+	}
+	
+	public String getOccupation() {
+		return occupation;
+	}
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
+	}
+	
+	public String getDayphone() {
+		return dayphone;
+	}
+	public void setDayphone(String dayphone) {
+		this.dayphone = dayphone;
+	}
+	
+	public String getSpday() {
+		return spday;
+	}
+	public void setSpday(String spday) {
+		this.spday = spday;
+	}
+	
+	public String getSpmonth() {
+		return spmonth;
+	}
+	public void setSpmonth(String spmonth) {
+		this.spmonth = spmonth;
+	}
+	
+	public String getSpyear() {
+		return spyear;
+	}
+	public void setSpyear(String spyear) {
+		this.spyear = spyear;
+	}
+	
+	public String getSpoccupation() {
+		return spoccupation;
+	}
+	public void setSpoccupation(String spoccupation) {
+		this.spoccupation = spoccupation;
+	}
+	
+	public String getSpirspin() {
+		return spirspin;
+	}
+	public void setSpirspin(String spirspin) {
+		this.spirspin = spirspin;
+	}
+	
+	public String getPreparername() {
+		return preparername;
+	}
+	public void setPreparername(String preparername) {
+		this.preparername = preparername;
+	}
+	
+	public String getPday() {
+		return pday;
+	}
+	public void setPday(String pday) {
+		this.pday = pday;
+	}
+	
+	public String getPmonth() {
+		return pmonth;
+	}
+	public void setPmonth(String pmonth) {
+		this.pmonth = pmonth;
+	}
+	
+	public String getPyear() {
+		return pyear;
+	}
+	public void setPyear(String pyear) {
+		this.pyear = pyear;
+	}
+	
+    public String getFirmname() {
+		return firmname;
+	}
+	public void setFirmname(String firmname) {
+		this.firmname = firmname;
+	}
+    
+	public String getPtin() {
+		return ptin;
+	}
+	public void setPtin(String ptin) {
+		this.ptin = ptin;
+	}
+	
+	public String getEin() {
+		return ein;
+	}
+	public void setEin(String ein) {
+		this.ein = ein;
+	}
+	
+	public String getFirmaddr() {
+		return firmaddr;
+	}
+	public void setFirmaddr(String firmaddr) {
+		this.firmaddr = firmaddr;
+	}
+	
+	public String getFirmphone() {
+		return firmphone;
+	}
+	public void setFirmphone(String firmphone) {
+		this.firmphone = firmphone;
+	}
+
+	public String getNewpassword() {
+		return newpassword;
+	}
+	public void setNewpassword(String newpassword) {
+		this.newpassword = newpassword;
+	}	
+	
+	//Creatre Database connection
+	private static void createConnection()
+	{
+		try
+		{
+			Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
+			conn = DriverManager.getConnection(dbURL);
+		}
+		catch (Exception except)
+		{
+			except.printStackTrace();
+		}
+	}
+	
+	//Business logic to change user password
+	public String pwdChange() {
+		createConnection();
+		PreparedStatement psp = null;
+		
+		try
+		{
+			stmt = conn.createStatement();
+			//Updates password field in "userlogininfo" table
+			stmt.executeUpdate("update irsdatabase.userlogininfo set password = " + "'" + this.newpassword + "'" + " where username = " + "'" + LoginPageBean
+.username + "'");
+				return "pwdsuccess";
+		}
+		catch (SQLException sqlExcept)
+		{
+		//Print stack trace on failure
+			sqlExcept.printStackTrace();
+			return "failure";
+		}				
+		
+	}
+
+	//Business logic to check if eneterd information in 1040 form is valid for submission
+	public String getDisplayFormValidity() {				
+		try
+		{			
+			if(status == null){
+				finaldisplay = "";
+			}
+			else{
+			//Displays the String if submission process is success 
+				finaldisplay = "Form Submitted for User " + this.firstname + " " + this.lastname + " having SSN " + this.ssn + ". Tax to pay " + this.
+finaltaxableincome + ". Tax withheld " + this.totalpaymentcredit + ". Tax " + status;
+			}
+
+			return finaldisplay;
+		}
+		catch (Exception sqlExcept)
+		{
+			sqlExcept.printStackTrace();
+		}
+		//Display failure page on submission failure
+		return "failure";		
+
+	}
+	
+	//Helper function for DisplayFormValidity - setter method
+	public void setDisplayFormValidity() {				
+		try
+		{			
+			finaldisplay = null;
+		}
+		catch (Exception sqlExcept)
+		{
+			sqlExcept.printStackTrace();
+		}
+
+	}
+
+	//Business logic to check if all form fields data are valid in 1040 form
+	public String checkFormValidity() {		
+		createConnection();
+		PreparedStatement pss = null;
+		
+		ArrayList<String> ffields = new ArrayList<String>();
+		ffields.add(this.firstname); 
+		ffields.add(this.lastname);
+		ffields.add(this.ssn);	
+		ffields.add(this.spfirstname);
+		ffields.add(this.splastname);
+		ffields.add(this.spssn);
+		ffields.add(this.homeaddress);
+		ffields.add(this.aptno);
+		ffields.add(this.faddress);	
+		ffields.add(this.fcountry);
+		ffields.add(this.fcounty);
+		ffields.add(this.fpostal);	
+		ffields.add(this.totalwage);
+		ffields.add(this.taxableinterest);
+		ffields.add(this.compensation);
+		ffields.add(this.grossincome);
+		ffields.add(this.dependentexemption);
+		ffields.add(this.dependentspouse);
+		ffields.add(this.taxableincome); 
+		ffields.add(this.federaltax); 
+		ffields.add(this.eiccredit);
+		ffields.add(this.combatpay);
+		ffields.add(this.totalpaymentcredit);
+		ffields.add(this.finaltaxableincome); 
+		ffields.add(this.refund); 
+		ffields.add(this.routing);  
+		ffields.add(this.acctno); 
+		ffields.add(this.amountowed); 
+		ffields.add(this.desgname); 
+		ffields.add(this.desgphone); 
+		ffields.add(this.irspin); 
+		ffields.add(this.day); 
+		ffields.add(this.month);
+		ffields.add(this.year); 
+		ffields.add(this.occupation); 
+		ffields.add(this.dayphone);
+		ffields.add(this.thirdpartyauth);
+		ffields.add(this.spday);
+		ffields.add(this.spmonth);
+		ffields.add(this.spyear);
+		ffields.add(this.spoccupation);
+		ffields.add(this.spirspin);	
+		ffields.add(this.preparername);
+		ffields.add(this.pday);
+		ffields.add(this.pmonth);
+		ffields.add(this.pyear);
+		ffields.add(this.ptin);
+		ffields.add(this.firmname);
+		ffields.add(this.firmaddr);
+		ffields.add(this.ein);
+		ffields.add(this.firmphone); 
+
+		for (int i=0; i < ffields.size(); i++)
+		{
+			if (ffields.get(i) == null || (ffields.get(i)).isEmpty()) {
+				ffields.set(i,"na");}
+		}
+		
+		try
+		{
+			stmt = conn.createStatement();
+			stmt.executeUpdate("insert into " + submittablename + 
+"(funame,ffirstname,flastname,fssn,fspfirstname,fsplastname,fspssn,fhomeaddress,faptno,ffaddress,ffcountry,ffcounty,ffpostal,ftotalwage,ftaxablein
+terest,fcompensation,fgrossincome,fdependentexemption,fdependentspouse,ftaxableincome,federaltax,feiccredit,fcombatpay,ftotalpaymentcredit,ffinalt
+axableincome,frefund,frouting,facctno,famountowed,fdesgname,fdesgphone,firspin,fmyday,fmymonth,fmyyear,foccupation,fdayphone,fthirdpartyauth,fspda
+y,fspmonth,fspyear,fspoccupation,fspirspin,fpreparername,fpday,fpmonth,fpyear,fptin,ffirmname,ffirmaddr,fein,ffirmphone) "+ "values" + "('" + 
+LoginPageBean.username +"','"+ ffields.get(0) + "','" + ffields.get(1) + "','" + ffields.get(2) + "','" + ffields.get(3) + "','" + ffields.get(4)
+ + "','" + ffields.get(5) + "','" + ffields.get(6) + "','" + ffields.get(7) + "','" + ffields.get(8) + "','" + ffields.get(9) + "','" + ffields.
+get(10) + "','" + ffields.get(11) + "','" + ffields.get(12) + "','" + ffields.get(13) + "','" + ffields.get(14) + "','" + ffields.get(15) + "','"
+ + ffields.get(16) + "','" + ffields.get(17) + "','" + ffields.get(18) + "','" + ffields.get(19) + "','" + ffields.get(20) + "','" + ffields.get(
+21) + "','" + ffields.get(22) + "','" + ffields.get(23) + "','" + ffields.get(24) + "','" + ffields.get(25) + "','" + ffields.get(26) + "','" + 
+ffields.get(27) + "','" + ffields.get(28) + "','" + ffields.get(29) + "','" + ffields.get(30) + "','" + ffields.get(31) + "','" + ffields.get(32)
+ + "','" + ffields.get(33) + "','" + ffields.get(34) + "','" + ffields.get(35) + "','" + ffields.get(36) + "','" + ffields.get(37) + "','" + 
+ffields.get(38) + "','" + ffields.get(39) + "','" + ffields.get(40) + "','" + ffields.get(41) + "','" + ffields.get(42) + "','" + ffields.get(43)
+ + "','" + ffields.get(44) + "','" + ffields.get(45) + "','" + ffields.get(46) + "','" + ffields.get(47) + "','" + ffields.get(48) + "','" + 
+ffields.get(49) + "','" + ffields.get(50) + "')");
+			stmt.close();
+			//return "submitdata";
+			
+			status = null;
+			payment = 0f;
+			if( Float.valueOf(this.finaltaxableincome) >= Float.valueOf(this.totalpaymentcredit) ){
+				payment	= Float.valueOf(this.finaltaxableincome) - Float.valueOf(this.totalpaymentcredit);
+				status = "owed is " + payment ;			
+			}
+			else 
+			{
+				payment	= Float.valueOf(this.totalpaymentcredit) - Float.valueOf(this.finaltaxableincome);
+				status = "refund is " + payment ;			
+			}
+			return "Form Submitted for User "; 
+		}
+		catch (SQLException sqlExcept)
+		{
+			sqlExcept.printStackTrace();
+		}
+		return "failure";		
+
+	}
+	
+	//Business logic to save data in 1040 form in "formdatainfo" database table
+	public String saveData() {
+		createConnection();
+		PreparedStatement psr = null;
+		PreparedStatement ps = null;
+		
+		ArrayList<String> fields = new ArrayList<String>();
+		fields.add(this.firstname); 
+		fields.add(this.lastname);
+		fields.add(this.ssn);	
+		fields.add(this.spfirstname);
+		fields.add(this.splastname);
+		fields.add(this.spssn);
+		fields.add(this.homeaddress);
+		fields.add(this.aptno);
+		fields.add(this.faddress);	
+		fields.add(this.fcountry);
+		fields.add(this.fcounty);
+		fields.add(this.fpostal);	
+		fields.add(this.totalwage);
+		fields.add(this.taxableinterest);
+		fields.add(this.compensation);
+		fields.add(this.grossincome);
+		fields.add(this.dependentexemption);
+		fields.add(this.dependentspouse);
+		fields.add(this.taxableincome); 
+		fields.add(this.federaltax); 
+		fields.add(this.eiccredit);
+		fields.add(this.combatpay);
+		fields.add(this.totalpaymentcredit);
+		fields.add(this.finaltaxableincome); 
+		fields.add(this.refund); 
+		fields.add(this.routing);  
+		fields.add(this.acctno); 
+		fields.add(this.amountowed); 
+		fields.add(this.desgname); 
+		fields.add(this.desgphone); 
+		fields.add(this.irspin); 
+		fields.add(this.day); 
+		fields.add(this.month);
+		fields.add(this.year); 
+		fields.add(this.occupation); 
+		fields.add(this.dayphone);
+		fields.add(this.thirdpartyauth);
+		fields.add(this.spday);
+		fields.add(this.spmonth);
+		fields.add(this.spyear);
+		fields.add(this.spoccupation);
+		fields.add(this.spirspin);	
+		fields.add(this.preparername);
+		fields.add(this.pday);
+		fields.add(this.pmonth);
+		fields.add(this.pyear);
+		fields.add(this.ptin);
+		fields.add(this.firmname);
+		fields.add(this.firmaddr);
+		fields.add(this.ein);
+		fields.add(this.firmphone); 
+
+		
+		try
+		{
+			psr = conn.prepareStatement("select 
+uname,firstname,lastname,ssn,spfirstname,splastname,spssn,homeaddress,aptno,faddress,fcountry,fcounty,fpostal,totalwage,taxableinterest,compensati
+on,grossincome,dependentexemption,dependentspouse,taxableincome,federaltax,eiccredit,combatpay,totalpaymentcredit,finaltaxableincome,refund,routin
+g,acctno,amountowed,desgname,desgphone,irspin,myday,mymonth,myyear,occupation,dayphone,thirdpartyauth,spday,spmonth,spyear,spoccupation,spirspin,p
+reparername,pday,pmonth,pyear,ptin,firmname,firmaddr,ein,firmphone from " + tablename + " where uname= ? ");
+			psr.setString(1, LoginPageBean.username);
+			
+			ResultSet rsr = psr.executeQuery();
+			if (rsr.next()) // user record found
+			{
+				try
+				{
+					stmt = conn.createStatement();
+					//Update fileds in "formdatainfo" database table
+					stmt.executeUpdate("update " + tablename + " set firstname = " + "'" + fields.get(0) + "', " +
+							"lastname = " + "'" + fields.get(1) + "', " + 
+							"ssn = " + "'" + fields.get(2) + "', " + 
+							"spfirstname = " + "'" + fields.get(3)+ "', " + 
+							"splastname = " + "'" + fields.get(4)+ "', " + 
+							"spssn = " + "'" + fields.get(5)+ "', " + 
+							"homeaddress = " + "'" + fields.get(6)+ "', " + 
+							"aptno = " + "'" + fields.get(7)+ "', " + 
+							"faddress = " + "'" + fields.get(8)+ "', " + 
+							"fcountry = " + "'" + fields.get(9)+ "', " + 
+							"fcounty = " + "'" + fields.get(10)+ "', " + 
+							"fpostal = " + "'" + fields.get(11)+ "', " + 
+							"totalwage = " + "'" + fields.get(12)+ "', " + 
+							"taxableinterest = " + "'" + fields.get(13)+ "', " + 
+							"compensation = " + "'" + fields.get(14)+ "', " + 
+							"grossincome = " + "'" + fields.get(15)+ "', " + 
+							"dependentexemption = " + "'" + fields.get(16)+ "', " + 
+							"dependentspouse = " + "'" + fields.get(17)+ "', " + 
+							"taxableincome = " + "'" + fields.get(18)+ "', " + 
+							"federaltax = " + "'" + fields.get(19)+ "', " + 
+							"eiccredit = " + "'" + fields.get(20)+ "', " + 
+							"combatpay = " + "'" + fields.get(21)+ "', " + 
+							"totalpaymentcredit = " + "'" + fields.get(22)+ "', " + 
+							"finaltaxableincome = " + "'" + fields.get(23)+ "', " + 
+							"refund = " + "'" + fields.get(24)+ "', " + 
+							"routing = " + "'" + fields.get(25)+ "', " + 
+							"acctno = " + "'" + fields.get(26)+ "', " + 
+							"amountowed = " + "'" + fields.get(27)+ "', " + 
+							"desgname = " + "'" + fields.get(28)+ "', " + 
+							"desgphone = " + "'" + fields.get(29)+ "', " + 
+							"irspin = " + "'" + fields.get(30)+ "', " + 
+							"myday = " + "'" + fields.get(31)+ "', " + 
+							"mymonth = " + "'" + fields.get(32)+ "', " + 
+							"myyear = " + "'" + fields.get(33)+ "', " + 
+							"occupation = " + "'" + fields.get(34)+ "', " + 
+							"dayphone = " + "'" + fields.get(35)+ "', " + 
+							"thirdpartyauth = " + "'" + fields.get(36)+ "', " + 
+							"spday = " + "'" + fields.get(37)+ "', " + 
+							"spmonth = " + "'" + fields.get(38)+ "', " + 
+							"spyear = " + "'" + fields.get(39)+ "', " + 
+							"spoccupation = " + "'" + fields.get(40)+ "', " + 
+							"spirspin = " + "'" + fields.get(41)+ "', " + 
+							"preparername = " + "'" + fields.get(42)+ "', " + 
+							"pday = " + "'" + fields.get(43)+ "', " + 
+							"pmonth = " + "'" + fields.get(44)+ "', " + 
+							"pyear = " + "'" + fields.get(45)+ "', " + 
+							"ptin = " + "'" + fields.get(46)+ "', " + 
+							"firmname = " + "'" + fields.get(47)+ "', " +
+							"firmaddr = " + "'" + fields.get(48)+ "', " +
+							"ein = " + "'" + fields.get(49)+ "', " +
+							"firmphone = " + "'" + fields.get(50)+ "' " +
+							" where uname = " + "'" + LoginPageBean.username + "'");
+						return "saveddata";
+				}
+				catch (SQLException sqlExcept)
+				{
+				//Print stack trace on error
+					sqlExcept.printStackTrace();
+					return "failure";
+				}		
+			}
+			else{
+				try
+				{
+					stmt = conn.createStatement();
+					//Process saving of data for the first time in "formdatainfo" database table
+					stmt.executeUpdate("insert into " + tablename + 
+"(uname,firstname,lastname,ssn,spfirstname,splastname,spssn,homeaddress,aptno,faddress,fcountry,fcounty,fpostal,totalwage,taxableinterest,
+compensation,grossincome,dependentexemption,dependentspouse,taxableincome,federaltax,eiccredit,combatpay,totalpaymentcredit,finaltaxablein
+come,refund,routing,acctno,amountowed,desgname,desgphone,irspin,myday,mymonth,myyear,occupation,dayphone,thirdpartyauth,spday,spmonth,spye
+ar,spoccupation,spirspin,preparername,pday,pmonth,pyear,ptin,firmname,firmaddr,ein,firmphone) "+ "values" + "('" + LoginPageBean.username
+ +"','"+ fields.get(0) + "','" + fields.get(1) + "','" + fields.get(2) + "','" + fields.get(3) + "','" + fields.get(4) + "','" + fields.
+get(5) + "','" + fields.get(6) + "','" + fields.get(7) + "','" + fields.get(8) + "','" + fields.get(9) + "','" + fields.get(10) + "','" +
+ fields.get(11) + "','" + fields.get(12) + "','" + fields.get(13) + "','" + fields.get(14) + "','" + fields.get(15) + "','" + fields.get(
+16) + "','" + fields.get(17) + "','" + fields.get(18) + "','" + fields.get(19) + "','" + fields.get(20) + "','" + fields.get(21) + "','" 
++ fields.get(22) + "','" + fields.get(23) + "','" + fields.get(24) + "','" + fields.get(25) + "','" + fields.get(26) + "','" + fields.get
+(27) + "','" + fields.get(28) + "','" + fields.get(29) + "','" + fields.get(30) + "','" + fields.get(31) + "','" + fields.get(32) + "','"
+ + fields.get(33) + "','" + fields.get(34) + "','" + fields.get(35) + "','" + fields.get(36) + "','" + fields.get(37) + "','" + fields.
+get(38) + "','" + fields.get(39) + "','" + fields.get(40) + "','" + fields.get(41) + "','" + fields.get(42) + "','" + fields.get(43) + 
+"','" + fields.get(44) + "','" + fields.get(45) + "','" + fields.get(46) + "','" + fields.get(47) + "','" + fields.get(48) + "','" + 
+fields.get(49) + "','" + fields.get(50) + "')");
+					stmt.close();
+					return "saveddata";
+				}
+				catch (SQLException sqlExcept)
+				{
+					sqlExcept.printStackTrace();
+				}
+			}
+		}
+		catch (SQLException sqlExcept)
+		{
+			sqlExcept.printStackTrace();
+		}
+				
+		return "login";		
+	}
+	
+	//Business logic for retrieving data from saved 1040 form
+	public String retrieveData() {
+		createConnection();
+		PreparedStatement psr = null;
+		ArrayList<String> retfields = new ArrayList<String>();
+		
+		try
+		{
+			psr = conn.prepareStatement("select 
+uname,firstname,lastname,ssn,spfirstname,splastname,spssn,homeaddress,aptno,faddress,fcountry,fcounty,fpostal,totalwage,taxableinterest,compensati
+on,grossincome,dependentexemption,dependentspouse,taxableincome,federaltax,eiccredit,combatpay,totalpaymentcredit,finaltaxableincome,refund,routin
+g,acctno,amountowed,desgname,desgphone,irspin,myday,mymonth,myyear,occupation,dayphone,thirdpartyauth,spday,spmonth,spyear,spoccupation,spirspin,p
+reparername,pday,pmonth,pyear,ptin,firmname,firmaddr,ein,firmphone from " + tablename + " where uname= ? ");
+			psr.setString(1, LoginPageBean.username);
+			
+			ResultSet rsr = psr.executeQuery();
+			if (rsr.next()) // user record found
+			{
+				//Get user form data
+				retfields.add(rsr.getString("firstname"));
+				retfields.add(rsr.getString("lastname"));
+				retfields.add(rsr.getString("ssn"));
+				retfields.add(rsr.getString("spfirstname"));
+				retfields.add(rsr.getString("splastname"));
+				retfields.add(rsr.getString("spssn"));
+				retfields.add(rsr.getString("homeaddress"));
+				retfields.add(rsr.getString("aptno"));
+				retfields.add(rsr.getString("faddress"));
+				retfields.add(rsr.getString("fcountry"));
+				retfields.add(rsr.getString("fcounty"));
+				retfields.add(rsr.getString("fpostal"));
+				retfields.add(rsr.getString("totalwage"));
+				retfields.add(rsr.getString("taxableinterest"));
+				retfields.add(rsr.getString("compensation"));
+				retfields.add(rsr.getString("grossincome"));
+				retfields.add(rsr.getString("dependentexemption"));
+				retfields.add(rsr.getString("dependentspouse"));
+				retfields.add(rsr.getString("taxableincome"));
+				retfields.add(rsr.getString("federaltax"));
+				retfields.add(rsr.getString("eiccredit"));
+				retfields.add(rsr.getString("combatpay"));
+				retfields.add(rsr.getString("totalpaymentcredit"));
+				retfields.add(rsr.getString("finaltaxableincome"));
+				retfields.add(rsr.getString("refund"));
+				retfields.add(rsr.getString("routing"));
+				retfields.add(rsr.getString("acctno"));
+				retfields.add(rsr.getString("amountowed"));
+				retfields.add(rsr.getString("desgname"));
+				retfields.add(rsr.getString("desgphone"));
+				retfields.add(rsr.getString("irspin"));
+				retfields.add(rsr.getString("myday"));
+				retfields.add(rsr.getString("mymonth"));
+				retfields.add(rsr.getString("myyear"));
+				retfields.add(rsr.getString("occupation"));
+				retfields.add(rsr.getString("dayphone"));
+				retfields.add(rsr.getString("thirdpartyauth"));
+				retfields.add(rsr.getString("spday"));
+				retfields.add(rsr.getString("spmonth"));
+				retfields.add(rsr.getString("spyear"));
+				retfields.add(rsr.getString("spoccupation"));
+				retfields.add(rsr.getString("spirspin"));
+				retfields.add(rsr.getString("preparername"));
+				retfields.add(rsr.getString("pday"));
+				retfields.add(rsr.getString("pmonth"));
+				retfields.add(rsr.getString("pyear"));
+				retfields.add(rsr.getString("ptin"));
+				retfields.add(rsr.getString("firmname"));
+				retfields.add(rsr.getString("firmaddr"));
+				retfields.add(rsr.getString("ein"));
+				retfields.add(rsr.getString("firmphone"));  
+				
+				if(retfields.get(0) != "na" ){
+				this.firstname = retfields.get(0);
+				}
+				
+				if(retfields.get(1) != "na" ){					
+				this.lastname = retfields.get(1); }
+				
+				if(retfields.get(2) != "na" ){					
+				this.ssn = retfields.get(2); }	
+				
+				if(retfields.get(3) != "na" ){
+				this.spfirstname = retfields.get(3); }
+				
+				if(retfields.get(4) != "na" ){
+				this.splastname = retfields.get(4); }
+				
+				if(retfields.get(5) != "na" ){
+				this.spssn = retfields.get(5); }
+				
+				if(retfields.get(6) != "na" ){
+				this.homeaddress = retfields.get(6); }
+				
+				if(retfields.get(7) != "na" ){
+				this.aptno = retfields.get(7); }
+
+				if(retfields.get(8) != "na" ){
+				this.faddress = retfields.get(8); }
+				
+				if(retfields.get(9) != "na" ){
+				this.fcountry = retfields.get(9); }
+				
+				if(retfields.get(10) != "na" ){
+				this.fcounty = retfields.get(10); }
+				
+				if(retfields.get(11) != "na" ){
+				this.fpostal = retfields.get(11); }
+				
+				if(retfields.get(12) != "na" ){	
+				this.totalwage = retfields.get(12); }
+				
+				if(retfields.get(13) != "na" ){	
+				this.taxableinterest = retfields.get(13); }
+				
+				if(retfields.get(14) != "na" ){	
+				this.compensation = retfields.get(14); }
+				
+				if(retfields.get(15) != "na" ){	
+				this.grossincome = retfields.get(15); }
+				
+				if(retfields.get(16) != "na" ){	
+				this.dependentexemption = retfields.get(16); }
+				
+				if(retfields.get(17) != "na" ){	
+				this.dependentspouse = retfields.get(17); }
+				
+				if(retfields.get(18) != "na" ){	
+				this.taxableincome = retfields.get(18); }
+				
+				if(retfields.get(19) != "na" ){	 
+				this.federaltax = retfields.get(19); }
+				
+				if(retfields.get(20) != "na" ){	 
+				this.eiccredit = retfields.get(20); }
+				
+				if(retfields.get(21) != "na" ){	
+				this.combatpay = retfields.get(21); }
+				
+				if(retfields.get(22) != "na" ){	
+				this.totalpaymentcredit = retfields.get(22); }
+				
+				if(retfields.get(23) != "na" ){	
+				this.finaltaxableincome = retfields.get(23); }
+				
+				if(retfields.get(24) != "na" ){	 
+				this.refund = retfields.get(24); }
+				
+				if(retfields.get(25) != "na" ){	 
+				this.routing = retfields.get(25); }
+				
+				if(retfields.get(26) != "na" ){	  
+				this.acctno = retfields.get(26); }
+				
+				if(retfields.get(27) != "na" ){	 
+				this.amountowed = retfields.get(27); }
+				
+				if(retfields.get(28) != "na" ){	 
+				this.desgname = retfields.get(28); }
+				
+				if(retfields.get(29) != "na" ){	 
+				this.desgphone = retfields.get(29); }
+				
+				if(retfields.get(30) != "na" ){	 
+				this.irspin = retfields.get(30); }
+				
+				if(retfields.get(31) != "na" ){	 
+				this.day = retfields.get(31); }
+				
+				if(retfields.get(32) != "na" ){	 
+				this.month = retfields.get(32); }
+				
+				if(retfields.get(33) != "na" ){	
+				this.year = retfields.get(33); }
+				
+				if(retfields.get(34) != "na" ){	 
+				this.occupation = retfields.get(34); }
+				
+				if(retfields.get(35) != "na" ){	 
+				this.dayphone = retfields.get(35); }
+				
+				if(retfields.get(36) != "na" ){	
+				this.thirdpartyauth = retfields.get(36); }
+				
+				if(retfields.get(37) != "na" ){	
+				this.spday = retfields.get(37); }
+				
+				if(retfields.get(38) != "na" ){	
+				this.spmonth = retfields.get(38); }
+				
+				if(retfields.get(39) != "na" ){	
+				this.spyear = retfields.get(39); }
+				
+				if(retfields.get(40) != "na" ){	
+				this.spoccupation = retfields.get(40); }
+				
+				if(retfields.get(41) != "na" ){	
+				this.spirspin = retfields.get(41); }
+				
+				if(retfields.get(42) != "na" ){		
+				this.preparername = retfields.get(42); }
+				
+				if(retfields.get(43) != "na" ){	
+				this.pday = retfields.get(43); }
+				
+				if(retfields.get(44) != "na" ){	
+				this.pmonth = retfields.get(44); }
+				
+				if(retfields.get(45) != "na" ){	
+				this.pyear = retfields.get(45); }
+				
+				if(retfields.get(46) != "na" ){	
+				this.ptin = retfields.get(46); }
+				
+				if(retfields.get(47) != "na" ){	
+				this.firmname = retfields.get(47); }
+				
+				if(retfields.get(48) != "na" ){	
+				this.firmaddr = retfields.get(48); }
+				
+				if(retfields.get(49) != "na" ){	
+				this.ein = retfields.get(49); }
+				
+				if(retfields.get(50) != "na" ){	
+				this.firmphone = retfields.get(50); }
+				else{
+				this.firmphone = " "; 
+				}
+
+		//return success when data is retrieved
+		return "success";
+			}
+			else
+			{
+				//return failure if retrieving fails
+				return "failure";
+			}
+		}
+		catch (SQLException sqlExcept)
+		{
+			//return failure by printing stack trace if retrieving fails
+			sqlExcept.printStackTrace();
+		}
+		//return success when data is retrieved
+		return "success";
+	}
+
+
+}
