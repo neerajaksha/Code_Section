@@ -1,0 +1,63 @@
+// Codility Challenge - 2013
+// My source code to solve the problem of determining the number of disks that fit into the well.
+
+int falling_disks ( int A[], int N, int B[], int M ) {
+//Returns the count of number of disks that be accomodated in the well
+
+ long long count=0, start_index=0, index=-1, rest_index=-1, count1;
+  int largest(int B[],int M)
+  {
+    long long i,large=-1,ind=-1;
+    for(i=0; i<M; i++)
+    {   
+        if(B[i]>large){
+          large=B[i];ind=i;
+        }
+    }
+    return ind;
+  }
+
+index=largest(B,M);
+rest_index=M-index; 
+
+int traverse(int A[],int start_index, int rest_index,int index){
+long long j,c=0;
+  for(j=start_index; j<rest_index; j++)
+  {            
+    if(B[index]<=A[j]){ c++; }   
+    else{ j = rest_index; }         
+  }
+return c;
+}
+
+while( (start_index!=rest_index) && (M>0) && index>=0 )
+{
+  count1=traverse(A, start_index, rest_index, index);
+  
+  if(count1==0){
+    M = index; 
+    index = largest(B,M); 
+    rest_index = start_index + M - index;
+  }
+  else
+  {
+        if(count1==rest_index){
+          count+=count1;  
+          M = M - (rest_index-start_index); 
+          start_index+=rest_index; 
+          index = largest(B,M); 
+          rest_index = start_index + M - index; 
+        }
+        else {
+          count+=count1;   
+          M = M - (rest_index-start_index); 
+          index = largest(B,M); 
+            if(index==0){ start_index=start_index; }
+            else { start_index=count1; }
+          rest_index = start_index + M - index;  
+          }
+  }
+}
+return count;
+}
+
